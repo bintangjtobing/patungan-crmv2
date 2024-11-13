@@ -57,82 +57,73 @@
 
     <ul class="menu-inner py-1">
         <!-- Dashboard -->
-        <li class="menu-item active">
+        <li class="menu-item {{ Request::is('dashboard') ? 'active' : '' }}">
             <a href="/dashboard" class="menu-link">
                 <i class="menu-icon tf-icons bx bx-home-circle"></i>
                 <div data-i18n="Dashboard">Dashboard</div>
             </a>
         </li>
 
-        <!-- Settings -->
-        <li class="menu-item">
-            <a href="/settings" class="menu-link">
+        <!-- Configurations Section -->
+        <li class="menu-header">Configurations</li>
+        <li class="menu-item {{ Request::is('rekenings') ? 'active' : '' }}">
+            <a href="/rekenings" class="menu-link">
                 <i class="menu-icon tf-icons bx bx-cog"></i>
-                <div data-i18n="Settings">Settings</div>
+                <div data-i18n="Rekening">Rekening</div>
             </a>
         </li>
-
-        <!-- Tokens (API) -->
-        <li class="menu-item">
+        <li class="menu-item {{ Request::is('tokens') ? 'active' : '' }}">
             <a href="/tokens" class="menu-link">
                 <i class="menu-icon tf-icons bx bx-key"></i>
                 <div data-i18n="Tokens">Tokens</div>
             </a>
         </li>
+        <li class="menu-item {{ Request::is('emails') ? 'active' : '' }}">
+            <a href="/emails" class="menu-link">
+                <i class="menu-icon tf-icons bx bx-envelope"></i>
+                <div data-i18n="Emails">Emails</div>
+            </a>
+        </li>
 
-        <!-- Users (Customers) -->
-        <li class="menu-item">
+        <!-- Master Section -->
+        <li class="menu-header">Master</li>
+        <li class="menu-item {{ Request::is('users') ? 'active' : '' }}">
             <a href="/users" class="menu-link">
                 <i class="menu-icon tf-icons bx bx-user"></i>
                 <div data-i18n="Users">Users</div>
             </a>
         </li>
-
-        <!-- Suppliers -->
-        <li class="menu-item">
+        <li class="menu-item {{ Request::is('suppliers') ? 'active' : '' }}">
             <a href="/suppliers" class="menu-link">
                 <i class="menu-icon tf-icons bx bx-buildings"></i>
                 <div data-i18n="Suppliers">Suppliers</div>
             </a>
         </li>
-
-        <!-- Transactions -->
-        <li class="menu-item">
-            <a href="/transactions" class="menu-link">
-                <i class="menu-icon tf-icons bx bx-transfer"></i>
-                <div data-i18n="Transactions">Transactions</div>
-            </a>
-        </li>
-
-        <!-- List Payments -->
-        <li class="menu-item">
-            <a href="/list-payments" class="menu-link">
-                <i class="menu-icon tf-icons bx bx-wallet"></i>
-                <div data-i18n="List Payments">List Payments</div>
-            </a>
-        </li>
-
-        <!-- Products -->
-        <li class="menu-item">
+        <li class="menu-item {{ Request::is('products') ? 'active' : '' }}">
             <a href="/products" class="menu-link">
                 <i class="menu-icon tf-icons bx bx-box"></i>
                 <div data-i18n="Products">Products</div>
             </a>
         </li>
 
-        <!-- Kredential Customers -->
-        <li class="menu-item">
-            <a href="/credential-customers" class="menu-link">
-                <i class="menu-icon tf-icons bx bx-id-card"></i>
-                <div data-i18n="Kredential Customers">Kredential Customers</div>
+        <!-- Transactional Ecosystem Section -->
+        <li class="menu-header">Transactional Ecosystem</li>
+        <li class="menu-item {{ Request::is('transactions') ? 'active' : '' }}">
+            <a href="/transactions" class="menu-link">
+                <i class="menu-icon tf-icons bx bx-transfer"></i>
+                <div data-i18n="Transactions">Transactions</div>
             </a>
         </li>
-
-        <!-- Emails -->
-        <li class="menu-item">
-            <a href="/emails" class="menu-link">
-                <i class="menu-icon tf-icons bx bx-envelope"></i>
-                <div data-i18n="Emails">Emails</div>
+        <li class="menu-item {{ Request::is('payments') ? 'active' : '' }}">
+            <a href="/payments" class="menu-link">
+                <i class="menu-icon tf-icons bx bx-wallet"></i>
+                <div data-i18n="List Payments">List Payments</div>
+            </a>
+        </li>
+        <li class="menu-item {{ Request::is('kredential_customers') ? 'active' : '' }}">
+            <a href="/kredential_customers" class="menu-link">
+                <i class="menu-icon tf-icons bx bx-id-card"></i>
+                <div data-i18n="Kredential Customers">Kredential Customers</div>
             </a>
         </li>
     </ul>

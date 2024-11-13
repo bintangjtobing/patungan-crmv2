@@ -105,3 +105,34 @@
   text-align: center;
   margin-top: 1rem;
 }
+/* Infinite shadow animation */
+.animated-btn {
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.3s ease;
+}
+
+.animated-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.3);
+    opacity: 0;
+    box-shadow: 0 0 10px 5px rgba(0, 123, 255, 0.5);
+    border-radius: 4px;
+    animation: shadowPulse 2s infinite ease-in-out;
+}
+
+@keyframes shadowPulse {
+    0%, 100% {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    50% {
+        opacity: 1;
+        transform: scale(1.1);
+    }
+}
