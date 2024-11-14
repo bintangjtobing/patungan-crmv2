@@ -23,7 +23,7 @@
             <li class="nav-item navbar-dropdown dropdown-user dropdown">
                 <a class="nav-link dropdown-toggle hide-arrow" href="javascript:void(0);" data-bs-toggle="dropdown">
                     <div class="avatar avatar-online">
-                        <img src="{{asset('assets/img/avatars/1.png')}}" alt class="w-px-40 h-auto rounded-circle" />
+                        <img src="{{ asset('assets/img/avatars/1.png') }}" alt class="w-px-40 h-auto rounded-circle" />
                     </div>
                 </a>
                 <ul class="dropdown-menu dropdown-menu-end">
@@ -32,7 +32,7 @@
                             <div class="d-flex">
                                 <div class="flex-shrink-0 me-3">
                                     <div class="avatar avatar-online">
-                                        <img src="{{asset('assets/img/avatars/1.png')}}" alt
+                                        <img src="{{ asset('assets/img/avatars/1.png') }}" alt
                                             class="w-px-40 h-auto rounded-circle" />
                                     </div>
                                 </div>
@@ -72,11 +72,16 @@
                         <div class="dropdown-divider"></div>
                     </li>
                     <li>
-                        <a class="dropdown-item" href="/logout">
-                            <i class="bx bx-power-off me-2"></i>
-                            <span class="align-middle">Log Out</span>
-                        </a>
+                        <form action="{{ route('logout') }}" method="POST" style="display: inline;">
+                            @csrf
+                            <button type="submit" class="dropdown-item px-4 pb-2"
+                                style="border: none; background: none; padding: 0; cursor: pointer;">
+                                <i class="bx bx-power-off me-2"></i>
+                                <span class="align-middle">Log Out</span>
+                            </button>
+                        </form>
                     </li>
+
                 </ul>
             </li>
             <!--/ User -->
