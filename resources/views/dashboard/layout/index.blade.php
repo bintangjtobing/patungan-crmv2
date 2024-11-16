@@ -31,6 +31,7 @@
     <link rel="stylesheet" href="{{asset('assets/vendor/libs/apex-charts/apex-charts.css')}}" />
     <script src="{{asset('assets/vendor/js/helpers.js')}}"></script>
     <script src="{{asset('assets/js/config.js')}}"></script>
+    @notifyCss
 </head>
 
 <body>
@@ -68,6 +69,8 @@
         <div class="layout-overlay layout-menu-toggle"></div>
     </div>
 
+    <x-notify::notify />
+
     <!-- Core JS -->
     <!-- build:js assets/vendor/js/core.js -->
     <script src="{{asset('assets/vendor/libs/jquery/jquery.js')}}"></script>
@@ -89,6 +92,7 @@
 
     <!-- Place this tag in your head or just before your close body tag. -->
     <script async defer src="https://buttons.github.io/buttons.js"></script>
+    @notifyJs
 </body>
 
 </html>

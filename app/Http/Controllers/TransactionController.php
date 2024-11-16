@@ -9,6 +9,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Log;
 
 class TransactionController extends Controller
 {
@@ -29,13 +30,14 @@ class TransactionController extends Controller
         $users = User::all();
         $products = Product::all();
         $suppliers = Supplier::all();
-        return view('dashboard.transactions.create', compact('users', 'products','suppliers'));
+        return view('dashboard.transactions.create', compact('users', 'products', 'suppliers'));
     }
     public function store(Request $request)
     {
         // Determine if it's a penjualan (1) or pembelian (0)
         $isPenjualan = $request->jenis_transaksi == 1;
 
+        // Define validation rules
         $rules = [
             'jenis_transaksi' => 'required|boolean',
             'harga' => 'required|integer',
@@ -52,8 +54,19 @@ class TransactionController extends Controller
             $rules['supplier_uuid'] = 'required|exists:suppliers,uuid';
         }
 
-        $request->validate($rules);
+        try {
+            // Validate the request
+            $request->validate($rules);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            // Log validation errors
+            Log::error('Validation errors:', $e->errors());
+            return response()->json([
+                'message' => 'Validation failed',
+                'errors' => $e->errors(),
+            ], 422);
+        }
 
+        // Base transaction data
         $data = $request->only([
             'jenis_transaksi',
             'harga',
@@ -68,8 +81,16 @@ class TransactionController extends Controller
             $data['status'] = $request->hasFile('bukti_transaksi') ? 1 : 0;
 
             if ($request->hasFile('bukti_transaksi')) {
-                $uploadedFileUrl = Cloudinary::upload($request->file('bukti_transaksi')->getRealPath())->getSecurePath();
-                $data['bukti_transaksi'] = $uploadedFileUrl;
+                try {
+                    $uploadedFileUrl = Cloudinary::upload($request->file('bukti_transaksi')->getRealPath())->getSecurePath();
+                    $data['bukti_transaksi'] = $uploadedFileUrl;
+                } catch (\Exception $e) {
+                    Log::error('File upload error:', ['message' => $e->getMessage()]);
+                    return response()->json([
+                        'message' => 'File upload failed',
+                        'error' => $e->getMessage(),
+                    ], 500);
+                }
             }
         } else {
             // Pembelian-specific data
@@ -78,10 +99,22 @@ class TransactionController extends Controller
             $data['status'] = 1; // Automatically mark pembelian as paid
         }
 
-        Transaction::create($data);
+        try {
+            // Create the transaction
+            Transaction::create($data);
+        } catch (\Exception $e) {
+            Log::error('Database error:', ['message' => $e->getMessage()]);
+            return response()->json([
+                'message' => 'Failed to save transaction',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+
+        Log::info('Transaction created successfully:', $data);
 
         return redirect()->route('transactions.index')->with('success', 'Transaction created successfully.');
     }
+
 
     /**
      * Show the form for editing the specified transaction.

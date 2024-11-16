@@ -46,8 +46,8 @@
 
             <!-- Supplier (only visible for Pembelian) -->
             <div class="mb-3" id="supplier_section" style="display: none;">
-                <label for="supplier_id" class="form-label">Supplier</label>
-                <select name="supplier_id" id="supplier_id" class="form-select">
+                <label for="supplier_uuid" class="form-label">Supplier</label>
+                <select name="supplier_uuid" id="supplier_uuid" class="form-select">
                     <option value="">Select a Supplier</option>
                     @foreach($suppliers as $supplier)
                     <option value="{{ $supplier->uuid }}">{{ $supplier->name }}</option>
