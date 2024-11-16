@@ -72,7 +72,7 @@
                 <div data-i18n="Rekening">Rekening</div>
             </a>
         </li>
-        <li class="menu-item {{ Request::is('tokens') ? 'active' : '' }}">
+        {{-- <li class="menu-item {{ Request::is('tokens') ? 'active' : '' }}">
             <a href="/tokens" class="menu-link">
                 <i class="menu-icon tf-icons bx bx-key"></i>
                 <div data-i18n="Tokens">Tokens</div>
@@ -83,7 +83,7 @@
                 <i class="menu-icon tf-icons bx bx-envelope"></i>
                 <div data-i18n="Emails">Emails</div>
             </a>
-        </li>
+        </li> --}}
 
         <!-- Master Section -->
         <li class="menu-header">Master</li>

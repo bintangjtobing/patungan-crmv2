@@ -8,6 +8,8 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\KredentialCustomerController;
 use App\Http\Controllers\MultiStepController;
 use App\Http\Controllers\LoginController;
+use App\Http\Controllers\SupplierController;
+
 
 Route::get('/', function () {
     return view('fe.register');
@@ -51,4 +53,7 @@ Route::middleware(['auth'])->group(function () {
     // Multi-step form routes
     Route::get('/multi-step-form', [MultiStepController::class, 'showForm'])->name('showMultiStepForm');
     Route::post('/multi-step-form', [MultiStepController::class, 'submitForm'])->name('submitMultiStepForm');
+
+    Route::resource('suppliers', SupplierController::class);
+
 });

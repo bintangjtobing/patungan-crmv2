@@ -15,6 +15,7 @@ class Transaction extends BaseModel
         'user_id',
         'jenis_transaksi',
         'product_uuid',
+        'supplier_uuid',
         'description',
         'jumlah',
         'harga',
@@ -68,4 +69,8 @@ class Transaction extends BaseModel
 
         return 'valid';
     }
+    public function supplier()
+{
+    return $this->belongsTo(Supplier::class, 'supplier_uuid', 'uuid');
+}
 }

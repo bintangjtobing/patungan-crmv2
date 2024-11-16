@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Transaction;
 use App\Models\Product;
+use App\Models\Supplier;
 use App\Models\User;
 use Illuminate\Http\Request;
 use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
@@ -16,7 +17,7 @@ class TransactionController extends Controller
      */
     public function index()
     {
-        $transactions = Transaction::with(['user', 'product'])->get();
+        $transactions = Transaction::with(['user', 'product', 'supplier'])->get();
         return view('dashboard.transactions.index', compact('transactions'));
     }
 
@@ -27,50 +28,56 @@ class TransactionController extends Controller
     {
         $users = User::all();
         $products = Product::all();
-        return view('dashboard.transactions.create', compact('users', 'products'));
+        $suppliers = Supplier::all();
+        return view('dashboard.transactions.create', compact('users', 'products','suppliers'));
     }
-
-    /**
-     * Store a newly created transaction in storage.
-     */
     public function store(Request $request)
     {
-        $request->validate([
-            'user_id' => 'required|exists:users,id',
-            'jenis_transaksi' => 'required|boolean', // 0 for pembelian, 1 for penjualan
-            'product_uuid' => 'required|exists:products,uuid',
-            'description' => 'nullable|string',
-            'jumlah' => 'required|integer',
+        // Determine if it's a penjualan (1) or pembelian (0)
+        $isPenjualan = $request->jenis_transaksi == 1;
+
+        $rules = [
+            'jenis_transaksi' => 'required|boolean',
             'harga' => 'required|integer',
-            'tanggal_waktu_transaksi_selesai' => 'nullable|date',
-            'bukti_transaksi' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048'
-        ]);
+        ];
+
+        if ($isPenjualan) {
+            // Penjualan-specific validation rules
+            $rules['user_id'] = 'required|exists:users,id';
+            $rules['product_uuid'] = 'required|exists:products,uuid';
+            $rules['jumlah'] = 'required|integer';
+            $rules['bukti_transaksi'] = 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048';
+        } else {
+            // Pembelian-specific validation rules
+            $rules['supplier_uuid'] = 'required|exists:suppliers,uuid';
+        }
+
+        $request->validate($rules);
 
         $data = $request->only([
-            'user_id',
             'jenis_transaksi',
-            'product_uuid',
-            'description',
-            'jumlah',
             'harga',
-            'tanggal_waktu_transaksi_selesai'
+            'description',
         ]);
 
-        // Set the initial status based on whether proof of transaction is provided
-        $data['status'] = $request->hasFile('bukti_transaksi') ? 1 : 0; // 1 for paid, 0 for pending
+        if ($isPenjualan) {
+            // Penjualan-specific data
+            $data['user_id'] = $request->user_id;
+            $data['product_uuid'] = $request->product_uuid;
+            $data['jumlah'] = $request->jumlah;
+            $data['status'] = $request->hasFile('bukti_transaksi') ? 1 : 0;
 
-        // Handle bukti_transaksi upload if provided
-        if ($request->hasFile('bukti_transaksi')) {
-            $uploadedFileUrl = Cloudinary::upload($request->file('bukti_transaksi')->getRealPath())->getSecurePath();
-            $data['bukti_transaksi'] = $uploadedFileUrl;
+            if ($request->hasFile('bukti_transaksi')) {
+                $uploadedFileUrl = Cloudinary::upload($request->file('bukti_transaksi')->getRealPath())->getSecurePath();
+                $data['bukti_transaksi'] = $uploadedFileUrl;
+            }
+        } else {
+            // Pembelian-specific data
+            $data['user_id'] = auth()->id(); // Assign admin as user for pembelian
+            $data['supplier_uuid'] = $request->supplier_uuid;
+            $data['status'] = 1; // Automatically mark pembelian as paid
         }
 
-        // Set the current date and time for `tanggal_waktu_transaksi_selesai` if not provided
-        if (is_null($data['tanggal_waktu_transaksi_selesai'])) {
-            $data['tanggal_waktu_transaksi_selesai'] = Carbon::now()->setTimezone('Asia/Jakarta');
-        }
-
-        // Create the transaction
         Transaction::create($data);
 
         return redirect()->route('transactions.index')->with('success', 'Transaction created successfully.');

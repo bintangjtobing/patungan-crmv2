@@ -40,7 +40,7 @@
                     </td>
 
                     <!-- Product Name -->
-                    <td>{{ $transaction->product->nama ?? 'N/A' }}</td>
+                    <td>{{ $transaction->product->nama ?? $transaction->supplier->name ?? 'N/A' }}</td>
 
                     <!-- Combined Price and Amount -->
                     <td>
