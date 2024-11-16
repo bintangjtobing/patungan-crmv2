@@ -76,7 +76,9 @@ body {
   -webkit-text-size-adjust: 100%;
   -webkit-tap-highlight-color: rgba(67, 89, 113, 0);
 }
-
+[type=submit] {
+  background-color: #ffa60d !important;
+}
 hr {
   margin: 1rem 0;
   color: #d9dee3;
@@ -6614,7 +6616,7 @@ label.btn {
 
 .btn-danger {
   color: #fff;
-  background-color: #ff3e1d;
+  background-color: #ff3e1d !important;
   border-color: #ff3e1d;
   box-shadow: 0 0.125rem 0.25rem 0 rgba(255, 62, 29, 0.4);
 }

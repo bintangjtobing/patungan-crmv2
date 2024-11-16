@@ -23,7 +23,7 @@ class KredentailObserver
 
         $sendMessage->send(
             $user->no_hp,
-            'Halo ' . $user->name . ',' . "\n\n" .
+            'Halo kak ' . $user->name . ',' . "\n\n" .
                 'Selamat! Akses kamu untuk produk ' . $kredentialCustomer->product->nama . ' telah berhasil dibuat.' . "\n\n" .
                 'Detail akses:' . "\n" .
                 'Email: ' . $kredentialCustomer->email_akses . "\n" .
@@ -48,7 +48,7 @@ class KredentailObserver
 
         $sendMessage->send(
             $user->no_hp,
-            'Halo ' . $user->name . ',' . "\n\n" .
+            'Halo kak ' . $user->name . ',' . "\n\n" .
                 'Akses kamu untuk produk ' . $kredentialCustomer->product->nama . ' telah diperbarui.' . "\n\n" .
                 'Detail akses:' . "\n" .
                 'Email: ' . $kredentialCustomer->email_akses . "\n" .
@@ -72,7 +72,7 @@ class KredentailObserver
 
         $sendMessage->send(
             $user->no_hp,
-            'Halo ' . $user->name . ',' . "\n\n" .
+            'Halo kak ' . $user->name . ',' . "\n\n" .
                 'Akses kamu untuk produk ' . $kredentialCustomer->product->nama . ' telah di hapus.' . "\n\n" .
                 'Detail akses:' . "\n" .
                 'Email: ' . $kredentialCustomer->email_akses . "\n" .
