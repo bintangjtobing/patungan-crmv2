@@ -14,6 +14,7 @@ class SupplierController extends Controller
     public function index()
     {
         $suppliers = Supplier::orderBy('created_at', 'DESC')->get();
+        notify()->success('Supplier list loaded successfully!');
         return view('dashboard.suppliers.index', compact('suppliers'));
     }
 
@@ -22,6 +23,7 @@ class SupplierController extends Controller
      */
     public function create()
     {
+        notify()->info('Ready to create a new supplier.');
         return view('dashboard.suppliers.create');
     }
 
@@ -49,7 +51,8 @@ class SupplierController extends Controller
             'is_active' => $request->has('is_active') ? $request->is_active : false,
         ]);
 
-        return redirect()->route('dashboard.suppliers.index')->with('success', 'Supplier created successfully.');
+        notify()->success('Supplier created successfully!');
+        return redirect()->route('suppliers.index');
     }
 
     /**
@@ -57,6 +60,7 @@ class SupplierController extends Controller
      */
     public function show(Supplier $supplier)
     {
+        notify()->info('Viewing details for supplier: ' . $supplier->name);
         return view('dashboard.suppliers.show', compact('supplier'));
     }
 
@@ -65,6 +69,7 @@ class SupplierController extends Controller
      */
     public function edit(Supplier $supplier)
     {
+        notify()->info('You are editing the supplier: ' . $supplier->name);
         return view('dashboard.suppliers.edit', compact('supplier'));
     }
 
@@ -91,7 +96,8 @@ class SupplierController extends Controller
             'is_active' => $request->has('is_active') ? $request->is_active : false,
         ]);
 
-        return redirect()->route('dashboard.suppliers.index')->with('success', 'Supplier updated successfully.');
+        notify()->success('Supplier updated successfully!');
+        return redirect()->route('dashboard.suppliers.index');
     }
 
     /**
@@ -100,6 +106,7 @@ class SupplierController extends Controller
     public function destroy(Supplier $supplier)
     {
         $supplier->delete();
-        return redirect()->route('dashboard.suppliers.index')->with('success', 'Supplier deleted successfully.');
+        notify()->success('Supplier deleted successfully!');
+        return redirect()->route('dashboard.suppliers.index');
     }
 }

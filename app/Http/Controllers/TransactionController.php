@@ -19,6 +19,7 @@ class TransactionController extends Controller
     public function index()
     {
         $transactions = Transaction::with(['user', 'product', 'supplier'])->get();
+        notify()->success('Transactions loaded successfully!', 'Success');
         return view('dashboard.transactions.index', compact('transactions'));
     }
 
@@ -30,43 +31,33 @@ class TransactionController extends Controller
         $users = User::all();
         $products = Product::all();
         $suppliers = Supplier::all();
+        notify()->info('Ready to create a new transaction!', 'Info');
         return view('dashboard.transactions.create', compact('users', 'products', 'suppliers'));
     }
+
+    /**
+     * Store a newly created transaction in storage.
+     */
     public function store(Request $request)
     {
-        // Determine if it's a penjualan (1) or pembelian (0)
         $isPenjualan = $request->jenis_transaksi == 1;
 
-        // Define validation rules
         $rules = [
-            'jenis_transaksi' => 'required|boolean',
+            'jenis_transaksi' => 'required|in:0,1',
             'harga' => 'required|integer',
         ];
 
         if ($isPenjualan) {
-            // Penjualan-specific validation rules
             $rules['user_id'] = 'required|exists:users,id';
             $rules['product_uuid'] = 'required|exists:products,uuid';
             $rules['jumlah'] = 'required|integer';
             $rules['bukti_transaksi'] = 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048';
         } else {
-            // Pembelian-specific validation rules
             $rules['supplier_uuid'] = 'required|exists:suppliers,uuid';
         }
 
-        try {
-            // Validate the request
-            $request->validate($rules);
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            // Log validation errors
-            Log::error('Validation errors:', $e->errors());
-            return response()->json([
-                'message' => 'Validation failed',
-                'errors' => $e->errors(),
-            ], 422);
-        }
+        $request->validate($rules);
 
-        // Base transaction data
         $data = $request->only([
             'jenis_transaksi',
             'harga',
@@ -74,7 +65,6 @@ class TransactionController extends Controller
         ]);
 
         if ($isPenjualan) {
-            // Penjualan-specific data
             $data['user_id'] = $request->user_id;
             $data['product_uuid'] = $request->product_uuid;
             $data['jumlah'] = $request->jumlah;
@@ -86,35 +76,21 @@ class TransactionController extends Controller
                     $data['bukti_transaksi'] = $uploadedFileUrl;
                 } catch (\Exception $e) {
                     Log::error('File upload error:', ['message' => $e->getMessage()]);
-                    return response()->json([
-                        'message' => 'File upload failed',
-                        'error' => $e->getMessage(),
-                    ], 500);
+                    notify()->error('File upload failed. Please try again.', 'Error');
+                    return redirect()->back();
                 }
             }
         } else {
-            // Pembelian-specific data
-            $data['user_id'] = auth()->id(); // Assign admin as user for pembelian
+            $data['user_id'] = auth()->id();
             $data['supplier_uuid'] = $request->supplier_uuid;
-            $data['status'] = 1; // Automatically mark pembelian as paid
+            $data['status'] = 1;
         }
 
-        try {
-            // Create the transaction
-            Transaction::create($data);
-        } catch (\Exception $e) {
-            Log::error('Database error:', ['message' => $e->getMessage()]);
-            return response()->json([
-                'message' => 'Failed to save transaction',
-                'error' => $e->getMessage(),
-            ], 500);
-        }
+        Transaction::create($data);
+        notify()->success('Transaction created successfully!', 'Success');
 
-        Log::info('Transaction created successfully:', $data);
-
-        return redirect()->route('transactions.index')->with('success', 'Transaction created successfully.');
+        return redirect()->route('transactions.index');
     }
-
 
     /**
      * Show the form for editing the specified transaction.
@@ -124,6 +100,7 @@ class TransactionController extends Controller
         $transaction = Transaction::findOrFail($id);
         $users = User::all();
         $products = Product::all();
+        notify()->info('Edit the transaction details below.', 'Info');
         return view('dashboard.transactions.edit', compact('transaction', 'users', 'products'));
     }
 
@@ -155,27 +132,23 @@ class TransactionController extends Controller
             'tanggal_waktu_transaksi_selesai'
         ]);
 
-        // Update status based on whether proof of transaction is provided
         if ($request->hasFile('bukti_transaksi')) {
-            // Delete old proof of transaction from Cloudinary if it exists
             if ($transaction->bukti_transaksi) {
                 $publicId = basename($transaction->bukti_transaksi, '.' . pathinfo($transaction->bukti_transaksi, PATHINFO_EXTENSION));
                 Cloudinary::destroy($publicId);
             }
 
-            // Upload new proof of transaction
             $uploadedFileUrl = Cloudinary::upload($request->file('bukti_transaksi')->getRealPath())->getSecurePath();
             $data['bukti_transaksi'] = $uploadedFileUrl;
-            $data['status'] = 1; // Set to paid if proof is provided
+            $data['status'] = 1;
         } else {
-            // Keep current status if no new bukti_transaksi is uploaded
             $data['status'] = $transaction->status;
         }
 
-        // Update the transaction data
         $transaction->update($data);
+        notify()->success('Transaction updated successfully!', 'Success');
 
-        return redirect()->route('transactions.index')->with('success', 'Transaction updated successfully.');
+        return redirect()->route('transactions.index');
     }
 
     /**
@@ -185,20 +158,21 @@ class TransactionController extends Controller
     {
         $transaction = Transaction::findOrFail($id);
 
-        // Delete proof of transaction from Cloudinary if it exists
         if ($transaction->bukti_transaksi) {
             $publicId = basename($transaction->bukti_transaksi, '.' . pathinfo($transaction->bukti_transaksi, PATHINFO_EXTENSION));
             Cloudinary::destroy($publicId);
         }
 
-        // Delete the transaction
         $transaction->delete();
+        notify()->success('Transaction deleted successfully!', 'Success');
 
-        return redirect()->route('transactions.index')->with('success', 'Transaction deleted successfully.');
+        return redirect()->route('transactions.index');
     }
+
     public function listPending()
     {
-        $pendingTransactions = Transaction::with('user', 'product')->where('status', 0)->get(); // 0 for pending
+        $pendingTransactions = Transaction::with('user', 'product')->where('status', 0)->get();
+        notify()->info('Loaded pending transactions.', 'Info');
         return view('dashboard.transactions.pending', compact('pendingTransactions'));
     }
 
@@ -207,7 +181,8 @@ class TransactionController extends Controller
      */
     public function markAsPaid(Transaction $transaction)
     {
-        $transaction->update(['status' => 1]); // 1 for paid
-        return redirect()->route('transactions.pending')->with('success', 'Transaction marked as paid.');
+        $transaction->update(['status' => 1]);
+        notify()->success('Transaction marked as paid!', 'Success');
+        return redirect()->route('transactions.pending');
     }
 }

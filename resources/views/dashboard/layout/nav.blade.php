@@ -74,7 +74,7 @@
                     <li>
                         <form action="{{ route('logout') }}" method="POST" style="display: inline;">
                             @csrf
-                            <button type="submit" class="dropdown-item px-4 pb-2"
+                            <button class="dropdown-item px-4 pb-2"
                                 style="border: none; background: none; padding: 0; cursor: pointer;">
                                 <i class="bx bx-power-off me-2"></i>
                                 <span class="align-middle">Log Out</span>

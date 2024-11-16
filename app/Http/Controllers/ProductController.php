@@ -14,6 +14,7 @@ class ProductController extends Controller
     public function index()
     {
         $products = Product::ordered()->get();
+        notify()->success('Product list loaded successfully!');
         return view('dashboard.products.index', compact('products'));
     }
 
@@ -22,6 +23,7 @@ class ProductController extends Controller
      */
     public function create()
     {
+        notify()->info('Ready to create a new product.');
         return view('dashboard.products.create');
     }
 
@@ -49,6 +51,7 @@ class ProductController extends Controller
 
         Product::create($data);
 
+        notify()->success('Product created successfully!');
         return redirect()->route('products.index')->with('success', 'Product created successfully.');
     }
 
@@ -57,6 +60,7 @@ class ProductController extends Controller
      */
     public function edit(Product $product)
     {
+        notify()->info('You are editing the product: ' . $product->nama);
         return view('dashboard.products.edit', compact('product'));
     }
 
@@ -90,6 +94,7 @@ class ProductController extends Controller
 
         $product->update($data);
 
+        notify()->success('Product updated successfully!');
         return redirect()->route('products.index')->with('success', 'Product updated successfully.');
     }
 
@@ -106,6 +111,7 @@ class ProductController extends Controller
 
         $product->delete();
 
+        notify()->success('Product deleted successfully!');
         return redirect()->route('products.index')->with('success', 'Product deleted successfully.');
     }
 }

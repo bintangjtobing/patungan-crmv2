@@ -13,7 +13,8 @@ class UserController extends Controller
      */
     public function index()
     {
-        $users = User::all(); // Retrieve all users
+        $users = User::all();
+        notify()->success('User list loaded successfully!', 'Success');
         return view('dashboard.users.index', compact('users'));
     }
 
@@ -22,7 +23,8 @@ class UserController extends Controller
      */
     public function create()
     {
-        return view('dashboard.users.create'); // Show the form for creating a new user
+        notify()->info('Fill out the form to create a new user.', 'Info');
+        return view('dashboard.users.create');
     }
 
     /**
@@ -42,21 +44,25 @@ class UserController extends Controller
             'profile_picture' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
 
-        // Prepare data for insertion
         $data = $request->only(['username', 'name', 'alamat', 'email', 'type', 'no_hp', 'is_active']);
         $data['is_active'] = $request->has('is_active') ? 1 : 0;
         $data['password'] = bcrypt($request->password);
 
         // Handle profile picture upload
         if ($request->hasFile('profile_picture')) {
-            $uploadedFileUrl = Cloudinary::upload($request->file('profile_picture')->getRealPath())->getSecurePath();
-            $data['profile_picture'] = $uploadedFileUrl;
+            try {
+                $uploadedFileUrl = Cloudinary::upload($request->file('profile_picture')->getRealPath())->getSecurePath();
+                $data['profile_picture'] = $uploadedFileUrl;
+            } catch (\Exception $e) {
+                notify()->error('Failed to upload profile picture. Please try again.', 'Error');
+                return redirect()->back();
+            }
         }
 
-        // Create the user
         User::create($data);
 
-        return redirect()->route('users.index')->with('success', 'User created successfully.');
+        notify()->success('User created successfully!', 'Success');
+        return redirect()->route('users.index');
     }
 
     /**
@@ -64,7 +70,8 @@ class UserController extends Controller
      */
     public function edit($id)
     {
-        $user = User::findOrFail($id); // Retrieve the user by ID
+        $user = User::findOrFail($id);
+        notify()->info('Edit user details below.', 'Info');
         return view('dashboard.users.edit', compact('user'));
     }
 
@@ -73,7 +80,8 @@ class UserController extends Controller
      */
     public function update(Request $request, $id)
     {
-        // Validate the form data
+        $user = User::findOrFail($id);
+
         $request->validate([
             'username' => 'nullable|string',
             'name' => 'required|string',
@@ -84,35 +92,34 @@ class UserController extends Controller
             'profile_picture' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
 
-        $user = User::findOrFail($id);
         $data = $request->only(['username', 'name', 'alamat', 'email', 'type', 'no_hp', 'is_active']);
         $data['is_active'] = $request->has('is_active') ? 1 : 0;
 
-        // If password is provided, hash and update it
         if ($request->filled('password')) {
             $request->validate(['password' => 'confirmed']);
             $data['password'] = bcrypt($request->password);
         }
 
-        // Handle profile picture upload
         if ($request->hasFile('profile_picture')) {
-            // Delete the old profile picture from Cloudinary if it exists
-            if ($user->profile_picture) {
-                $publicId = basename($user->profile_picture, '.' . pathinfo($user->profile_picture, PATHINFO_EXTENSION));
-                Cloudinary::destroy($publicId);
-            }
+            try {
+                if ($user->profile_picture) {
+                    $publicId = basename($user->profile_picture, '.' . pathinfo($user->profile_picture, PATHINFO_EXTENSION));
+                    Cloudinary::destroy($publicId);
+                }
 
-            // Upload the new profile picture to Cloudinary
-            $uploadedFileUrl = Cloudinary::upload($request->file('profile_picture')->getRealPath())->getSecurePath();
-            $data['profile_picture'] = $uploadedFileUrl;
+                $uploadedFileUrl = Cloudinary::upload($request->file('profile_picture')->getRealPath())->getSecurePath();
+                $data['profile_picture'] = $uploadedFileUrl;
+            } catch (\Exception $e) {
+                notify()->error('Failed to upload profile picture. Please try again.', 'Error');
+                return redirect()->back();
+            }
         }
 
-        // Update the user data
         $user->update($data);
 
-        return redirect()->route('users.index')->with('success', 'User updated successfully.');
+        notify()->success('User updated successfully!', 'Success');
+        return redirect()->route('users.index');
     }
-
 
     /**
      * Remove the specified user from storage.
@@ -121,15 +128,19 @@ class UserController extends Controller
     {
         $user = User::findOrFail($id);
 
-        // Delete the profile picture from Cloudinary if it exists
         if ($user->profile_picture) {
-            $publicId = basename($user->profile_picture, '.' . pathinfo($user->profile_picture, PATHINFO_EXTENSION));
-            Cloudinary::destroy($publicId);
+            try {
+                $publicId = basename($user->profile_picture, '.' . pathinfo($user->profile_picture, PATHINFO_EXTENSION));
+                Cloudinary::destroy($publicId);
+            } catch (\Exception $e) {
+                notify()->error('Failed to delete profile picture. Please try again.', 'Error');
+                return redirect()->back();
+            }
         }
 
-        // Delete the user
         $user->delete();
 
-        return redirect()->route('users.index')->with('success', 'User deleted successfully.');
+        notify()->success('User deleted successfully!', 'Success');
+        return redirect()->route('users.index');
     }
 }

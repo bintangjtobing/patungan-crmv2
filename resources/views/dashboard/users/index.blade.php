@@ -17,9 +17,7 @@
                 <tr>
                     <th>Name</th>
                     <th>Email</th>
-                    <th>Phone</th>
                     <th>Type</th>
-                    <th>Status</th>
                     <th>Actions</th>
                 </tr>
             </thead>
@@ -39,11 +37,11 @@
                         <small class="text-muted">{{ $user->username ?? 'N/A' }}</small>
                     </td>
                     <!-- Email -->
-                    <td>{{ $user->email }}</td>
-                    <td>
-                        <a href="https://wa.me/{{ preg_replace('/^0/', '62', $user->no_hp) }}">{{ preg_replace('/^0/',
-                            '62', $user->no_hp) }}</a>
-                    </td>
+                    <td>{{ $user->email }}<br><small class="text-muted"><i
+                                class="menu-icon tf-icons bx bxl-whatsapp mr-0"></i><a
+                                href="https://wa.me/{{ preg_replace('/^0/', '62', $user->no_hp) }}">{{
+                                preg_replace('/^0/',
+                                '62', $user->no_hp) }}</a></small></td>
 
                     <!-- Type -->
                     <td>
@@ -51,15 +49,6 @@
                         <span class="badge bg-label-info">Customer</span>
                         @else
                         <span class="badge bg-label-primary">User</span>
-                        @endif
-                    </td>
-
-                    <!-- Status -->
-                    <td>
-                        @if($user->is_active)
-                        <span class="badge bg-label-success">Active</span>
-                        @else
-                        <span class="badge bg-label-warning">Inactive</span>
                         @endif
                     </td>
 

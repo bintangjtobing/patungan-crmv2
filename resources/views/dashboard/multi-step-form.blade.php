@@ -119,31 +119,60 @@
 </form>
 
 <script>
-    document.getElementById('existingCustomer').addEventListener('change', function() {
-        document.getElementById('existingCustomerSection').style.display = 'block';
-        document.getElementById('newCustomerSection').style.display = 'none';
-    });
+    document.getElementById('existingCustomer').addEventListener('change', function () {
+    document.getElementById('existingCustomerSection').style.display = 'block';
+    document.getElementById('newCustomerSection').style.display = 'none';
 
-    document.getElementById('newCustomer').addEventListener('change', function() {
-        document.getElementById('existingCustomerSection').style.display = 'none';
-        document.getElementById('newCustomerSection').style.display = 'block';
-    });
+    // Disable New Customer fields
+    document.querySelector('[name="new_customer_name"]').disabled = true;
+    document.querySelector('[name="new_customer_email"]').disabled = true;
+    document.querySelector('[name="new_customer_phone"]').disabled = true;
 
-    const productSelect = document.getElementById('productSelect');
-    const amountInput = document.getElementById('amountInput');
-    const priceInput = document.getElementById('priceInput');
+    // Enable Existing Customer field
+    document.querySelector('[name="user_id"]').disabled = false;
+});
 
-    // Update price based on selected product and amount
-    function updatePrice() {
-        const selectedProduct = productSelect.options[productSelect.selectedIndex];
-        const pricePerMonth = parseFloat(selectedProduct.getAttribute('data-price')) || 0;
-        const amount = parseInt(amountInput.value) || 1;
-        priceInput.value = pricePerMonth * amount;
+document.getElementById('newCustomer').addEventListener('change', function () {
+    document.getElementById('existingCustomerSection').style.display = 'none';
+    document.getElementById('newCustomerSection').style.display = 'block';
+
+    // Enable New Customer fields
+    document.querySelector('[name="new_customer_name"]').disabled = false;
+    document.querySelector('[name="new_customer_email"]').disabled = false;
+    document.querySelector('[name="new_customer_phone"]').disabled = false;
+
+    // Disable Existing Customer field
+    document.querySelector('[name="user_id"]').disabled = true;
+});
+
+// Event listener for form submission
+document.querySelector('form').addEventListener('submit', function (e) {
+    if (document.getElementById('existingCustomer').checked) {
+        // Remove New Customer fields if Existing Customer is selected
+        document.querySelector('[name="new_customer_name"]').remove();
+        document.querySelector('[name="new_customer_email"]').remove();
+        document.querySelector('[name="new_customer_phone"]').remove();
+    } else {
+        // Remove Existing Customer field if New Customer is selected
+        document.querySelector('[name="user_id"]').remove();
     }
+});
 
-    // Event listeners for product selection and amount input
-    productSelect.addEventListener('change', updatePrice);
-    amountInput.addEventListener('input', updatePrice);
+// Update price dynamically based on product selection and amount input
+const productSelect = document.getElementById('productSelect');
+const amountInput = document.getElementById('amountInput');
+const priceInput = document.getElementById('priceInput');
+
+function updatePrice() {
+    const selectedProduct = productSelect.options[productSelect.selectedIndex];
+    const pricePerMonth = parseFloat(selectedProduct.getAttribute('data-price')) || 0;
+    const amount = parseInt(amountInput.value) || 1;
+    priceInput.value = pricePerMonth * amount;
+}
+
+// Add event listeners for dynamic price updates
+productSelect.addEventListener('change', updatePrice);
+amountInput.addEventListener('input', updatePrice);
 </script>
 
 @endsection

@@ -14,7 +14,9 @@ class MultiStepController extends Controller
     {
         $customers = User::where('type', 1)->get(); // Only customers
         $products = Product::all();
-        return view('dashboard.multi-step-form', compact('customers','products'));
+
+        notify()->success('Form loaded successfully. Ready to process the transaction!');
+        return view('dashboard.multi-step-form', compact('customers', 'products'));
     }
 
     public function submitForm(Request $request)
@@ -22,7 +24,7 @@ class MultiStepController extends Controller
         // Validate form data
         $request->validate([
             'customer_type' => 'required|in:existing,new',
-            'user_id' => 'required_if:customer_type,existing|nullable|exists:users,id',
+            'user_id' => 'required_if:customer_type,existing|exists:users,id',
             'new_customer_name' => 'required_if:customer_type,new|string|max:255',
             'new_customer_email' => 'required_if:customer_type,new|email|unique:users,email',
             'new_customer_phone' => 'required_if:customer_type,new|string|max:20',
@@ -41,8 +43,11 @@ class MultiStepController extends Controller
                 'is_active' => true,
                 'password' => bcrypt('default_password'), // Set a default password or prompt user to set it later
             ]);
+
+            notify()->success('New customer created successfully!');
         } else {
             $customer = User::find($request->user_id);
+            notify()->success('Existing customer selected successfully!');
         }
 
         // Retrieve product and calculate price
@@ -60,6 +65,8 @@ class MultiStepController extends Controller
             'bukti_transaksi' => null, // Optional, can be updated later if necessary
         ]);
 
+        notify()->success('Transaction created successfully!');
+
         // Create credential record for the customer
         KredentialCustomer::create([
             'user_id' => $customer->id,
@@ -69,7 +76,8 @@ class MultiStepController extends Controller
             'pin' => $request->pin ?? '',
         ]);
 
+        notify()->success('Customer credentials added successfully!');
+
         return redirect()->route('transactions.index')->with('success', 'Transaction and credentials created successfully.');
     }
-
 }

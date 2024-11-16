@@ -70,7 +70,7 @@ class Transaction extends BaseModel
         return 'valid';
     }
     public function supplier()
-{
-    return $this->belongsTo(Supplier::class, 'supplier_uuid', 'uuid');
-}
+    {
+        return $this->belongsTo(Supplier::class, 'supplier_uuid', 'uuid');
+    }
 }

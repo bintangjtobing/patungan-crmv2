@@ -12,12 +12,14 @@ class RekeningController extends Controller
     public function index()
     {
         $rekenings = Rekening::all();
+        notify()->success('Rekening list loaded successfully!');
         return view('dashboard.rekenings.index', compact('rekenings'));
     }
 
     // Show form to create a new rekening
     public function create()
     {
+        notify()->info('Ready to create a new rekening.');
         return view('dashboard.rekenings.create');
     }
 
@@ -34,7 +36,7 @@ class RekeningController extends Controller
 
         $data = $request->only(['name', 'bank', 'no_rek', 'type']);
 
-        // Upload image to Cloudinary with transformation if provided
+        // Upload image to Cloudinary if provided
         if ($request->hasFile('image')) {
             $uploadedFileUrl = cloudinary()->upload($request->file('image')->getRealPath(), [
                 'folder' => 'rekening',
@@ -44,12 +46,14 @@ class RekeningController extends Controller
 
         Rekening::create($data);
 
+        notify()->success('Rekening created successfully!');
         return redirect()->route('rekenings.index')->with('success', 'Rekening created successfully.');
     }
 
     // Show form to edit an existing rekening
     public function edit(Rekening $rekening)
     {
+        notify()->info('You are editing the rekening: ' . $rekening->name);
         return view('dashboard.rekenings.edit', compact('rekening'));
     }
 
@@ -83,6 +87,7 @@ class RekeningController extends Controller
 
         $rekening->update($data);
 
+        notify()->success('Rekening updated successfully!');
         return redirect()->route('rekenings.index')->with('success', 'Rekening updated successfully.');
     }
 
@@ -97,6 +102,7 @@ class RekeningController extends Controller
 
         $rekening->delete();
 
+        notify()->success('Rekening deleted successfully!');
         return redirect()->route('rekenings.index')->with('success', 'Rekening deleted successfully.');
     }
 }

@@ -19,9 +19,9 @@ class KredentialCustomerController extends Controller
             ->get()
             ->groupBy('email_akses');
 
+        notify()->success('Customer credentials loaded successfully!');
         return view('dashboard.kredential_customers.index', compact('groupedCredentials'));
     }
-
 
     /**
      * Show the form for creating a new customer credential.
@@ -32,6 +32,7 @@ class KredentialCustomerController extends Controller
             $query->where('status', 1); // Assuming status 1 means "paid"
         })->get();
 
+        notify()->success('Ready to add new customer credentials!');
         return view('dashboard.kredential_customers.create', compact('users'));
     }
 
@@ -50,6 +51,7 @@ class KredentialCustomerController extends Controller
 
         KredentialCustomer::create($request->all());
 
+        notify()->success('Customer credential added successfully!');
         return redirect()->route('kredential_customers.index')->with('success', 'Credential created successfully.');
     }
 
@@ -62,6 +64,7 @@ class KredentialCustomerController extends Controller
             $query->where('status', 1);
         })->get();
 
+        notify()->success('Editing customer credentials!');
         return view('dashboard.kredential_customers.edit', compact('kredentialCustomer', 'users'));
     }
 
@@ -80,6 +83,7 @@ class KredentialCustomerController extends Controller
 
         $kredentialCustomer->update($request->all());
 
+        notify()->success('Customer credential updated successfully!');
         return redirect()->route('kredential_customers.index')->with('success', 'Credential updated successfully.');
     }
 
@@ -90,6 +94,7 @@ class KredentialCustomerController extends Controller
     {
         $kredentialCustomer->delete();
 
+        notify()->success('Customer credential deleted successfully!');
         return redirect()->route('kredential_customers.index')->with('success', 'Credential deleted successfully.');
     }
 
@@ -102,6 +107,7 @@ class KredentialCustomerController extends Controller
             $query->where('user_id', $userId)->where('status', 1);
         })->get();
 
+        notify()->success('Products for the user fetched successfully!');
         return response()->json($products);
     }
 }

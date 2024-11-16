@@ -216,7 +216,9 @@ sup {
   line-height: 0;
   vertical-align: baseline;
 }
-
+.layout-navbar-fixed body:not(.modal-open) .layout-content-navbar .layout-navbar, .layout-menu-fixed body:not(.modal-open) .layout-content-navbar .layout-navbar, .layout-menu-fixed-offcanvas body:not(.modal-open) .layout-content-navbar .layout-navbar {
+    z-index: 0 !important;
+}
 sub {
   bottom: -0.25em;
 }
