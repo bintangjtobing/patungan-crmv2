@@ -19,9 +19,16 @@ class TransactionController extends Controller
      */
     public function index()
     {
-        $transactions = Transaction::with(['user', 'product', 'supplier'])->get();
+        $transactions = Transaction::with(['user', 'product', 'supplier'])
+        ->orderBy('created_at', 'desc')
+        ->get();
+
+        // Grouping berdasarkan bulan dan tahun
+        $groupedTransactions = $transactions->groupBy(function ($item) {
+            return $item->created_at->format('F Y'); // Contoh: "November 2024"
+        });
         notify()->success('Transactions loaded successfully!', 'Success');
-        return view('dashboard.transactions.index', compact('transactions'));
+        return view('dashboard.transactions.index', compact('groupedTransactions'));
     }
 
     /**
