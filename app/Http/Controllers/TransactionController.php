@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 
 class TransactionController extends Controller
 {
@@ -184,5 +185,24 @@ class TransactionController extends Controller
         $transaction->update(['status' => 1]);
         notify()->success('Transaction marked as paid!', 'Success');
         return redirect()->route('transactions.pending');
+    }
+    public function getOrderStatisticsData()
+    {
+        $transactions = DB::table('transactions')
+        ->join('products', 'transactions.product_uuid', '=', 'products.uuid')
+        ->selectRaw('products.nama AS product_name, COUNT(transactions.id) AS total, MAX(transactions.created_at) AS latest_transaction')
+        ->where('transactions.jenis_transaksi', 1)
+        ->groupBy('products.nama')
+        ->orderBy('latest_transaction', 'desc')
+        ->get();
+
+        $labels = $transactions->pluck('product_name');
+        $series = $transactions->pluck('total');
+
+        return response()->json([
+            'labels' => $labels,
+            'series' => $series,
+        ]);
+
     }
 }

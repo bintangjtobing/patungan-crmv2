@@ -9,6 +9,9 @@ use App\Http\Controllers\KredentialCustomerController;
 use App\Http\Controllers\MultiStepController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\SupplierController;
+use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\ProfileReportController;
+
 
 
 Route::get('/', function () {
@@ -25,6 +28,52 @@ Route::middleware(['guest'])->group(function () {
     // Route for handling login submission
     Route::post('/admin/login', [LoginController::class, 'login'])->name('login');
 });
+Route::get('/api/order-statistics', [TransactionController::class, 'getOrderStatisticsData']);
+Route::get('/api/dashboard-stats', function () {
+    $totalIncome = DB::table('transactions')
+        ->where('jenis_transaksi', 1) // Penjualan
+        ->sum('harga');
+
+    $totalExpenses = DB::table('transactions')
+        ->where('jenis_transaksi', 0) // Pembelian
+        ->sum('harga');
+
+    $totalProfit = $totalIncome - $totalExpenses;
+
+    $incomeTrend = DB::table('transactions')
+    ->select(
+        DB::raw("DATE_FORMAT(created_at, '%b') as month"),
+        DB::raw('SUM(harga) as total')
+    )
+    ->where('jenis_transaksi', 1)
+    ->groupBy(DB::raw("DATE_FORMAT(created_at, '%b'), DATE_FORMAT(created_at, '%Y-%m')"))
+    ->orderBy(DB::raw("DATE_FORMAT(created_at, '%Y-%m')"))
+    ->pluck('total', 'month');
+
+    $expensesThisWeek = DB::table('transactions')
+        ->where('jenis_transaksi', 0)
+        ->whereBetween('created_at', [now()->startOfWeek(), now()->endOfWeek()])
+        ->sum('harga');
+
+    $expensesLastWeek = DB::table('transactions')
+        ->where('jenis_transaksi', 0)
+        ->whereBetween('created_at', [now()->subWeek()->startOfWeek(), now()->subWeek()->endOfWeek()])
+        ->sum('harga');
+
+    $expenseDifference = $expensesThisWeek - $expensesLastWeek;
+
+    return response()->json([
+        'totalIncome' => $totalIncome,
+        'totalExpenses' => $totalExpenses,
+        'totalProfit' => $totalProfit,
+        'incomeTrend' => $incomeTrend,
+        'expensesThisWeek' => $expensesThisWeek,
+        'expenseDifference' => $expenseDifference,
+    ]);
+});
+
+Route::get('/api/profile-report-stats', [ProfileReportController::class, 'getProfileReportStats']);
+
 
 // Logout route available to authenticated users
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
@@ -32,8 +81,77 @@ Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 // Protected routes that require login
 Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', function () {
-        return view('dashboard.index');
+        // Statistik Order
+        $orderStatistics = DB::table('transactions')
+            ->join('products', 'transactions.product_uuid', '=', 'products.uuid')
+            ->select(
+                'products.nama as product_name',
+                DB::raw('COUNT(transactions.id) as total'),
+                DB::raw('MAX(transactions.created_at) as latest_transaction')
+            )
+            ->where('transactions.jenis_transaksi', 1)
+            ->groupBy('products.nama')
+            ->orderBy('latest_transaction', 'DESC')
+            ->get()
+            ->toArray();
+
+        // Total Penjualan
+        $totalSales = DB::table('transactions')
+            ->where('jenis_transaksi', 1)
+            ->count();
+
+        // Transaksi Terbaru
+        $transactions = \App\Models\Transaction::with(['user', 'product', 'supplier'])
+            ->orderBy('created_at', 'desc')
+            ->take(6)
+            ->get();
+
+        // Data Profile Report
+        $year = now()->year; // Tahun laporan
+        $incomeTrend = DB::table('transactions')
+            ->selectRaw("DATE_FORMAT(created_at, '%b') AS month, SUM(harga) AS total")
+            ->where('jenis_transaksi', 1)
+            ->whereYear('created_at', $year)
+            ->groupByRaw("DATE_FORMAT(created_at, '%b'), DATE_FORMAT(created_at, '%Y-%m')")
+            ->orderByRaw("DATE_FORMAT(created_at, '%Y-%m') ASC")
+            ->get();
+
+        // Hitung total pendapatan
+        $totalAmount = $incomeTrend->sum('total');
+
+        // Hitung growth percentage
+        $growthPercentages = [];
+        $previousTotal = null;
+
+        foreach ($incomeTrend as $data) {
+            if ($previousTotal !== null) {
+                $growthPercentage = (($data->total - $previousTotal) / $previousTotal) * 100;
+                $growthPercentages[] = round($growthPercentage, 2);
+            }
+            $previousTotal = $data->total;
+        }
+
+        // Rata-rata growth percentage
+        $growthPercentage = count($growthPercentages) > 0
+            ? round(array_sum($growthPercentages) / count($growthPercentages), 2)
+            : 0;
+
+        // Format data untuk Profile Report
+        $months = $incomeTrend->isNotEmpty() ? $incomeTrend->pluck('month')->toArray() : [];
+        $trend = $incomeTrend->isNotEmpty() ? $incomeTrend->pluck('total')->toArray() : [];
+
+        return view('dashboard.index', compact(
+            'orderStatistics',
+            'totalSales',
+            'transactions',
+            'year',
+            'growthPercentage',
+            'totalAmount',
+            'months',
+            'trend'
+        ));
     })->name('dashboard');
+
 
     Route::resource('rekenings', RekeningController::class);
     Route::resource('users', UserController::class);

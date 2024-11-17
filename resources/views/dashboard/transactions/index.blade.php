@@ -83,13 +83,6 @@
                     <td>
                         <a href="{{ route('transactions.edit', $transaction->id) }}"
                             class="btn btn-sm btn-primary">Edit</a>
-                        {{-- <form action="{{ route('transactions.destroy', $transaction->id) }}" method="POST"
-                            style="display:inline;">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="btn btn-sm btn-danger"
-                                onclick="return confirm('Are you sure you want to delete this transaction?')">Delete</button>
-                        </form> --}}
                     </td>
                 </tr>
                 @endforeach

@@ -361,339 +361,344 @@
         growthChart.render();
     }
 
-    // Profit Report Line Chart
-    // --------------------------------------------------------------------
-    const profileReportChartEl = document.querySelector("#profileReportChart"),
-        profileReportChartConfig = {
-            chart: {
-                height: 80,
-                // width: 175,
-                type: "line",
-                toolbar: {
-                    show: false,
-                },
-                dropShadow: {
-                    enabled: true,
-                    top: 10,
-                    left: 5,
-                    blur: 3,
-                    color: config.colors.warning,
-                    opacity: 0.15,
-                },
-                sparkline: {
-                    enabled: true,
-                },
-            },
-            grid: {
-                show: false,
-                padding: {
-                    right: 8,
-                },
-            },
-            colors: [config.colors.warning],
-            dataLabels: {
-                enabled: false,
-            },
-            stroke: {
-                width: 5,
-                curve: "smooth",
-            },
-            series: [
-                {
-                    data: [110, 270, 145, 245, 205, 285],
-                },
-            ],
-            xaxis: {
-                show: false,
-                lines: {
-                    show: false,
-                },
-                labels: {
-                    show: false,
-                },
-                axisBorder: {
-                    show: false,
-                },
-            },
-            yaxis: {
-                show: false,
-            },
-        };
-    if (
-        typeof profileReportChartEl !== undefined &&
-        profileReportChartEl !== null
-    ) {
-        const profileReportChart = new ApexCharts(
-            profileReportChartEl,
-            profileReportChartConfig
-        );
-        profileReportChart.render();
+    // Profile Report Chart
+    const profileReportChartEl = document.querySelector("#profileReportChart");
+
+    if (profileReportChartEl) {
+        fetch("/api/profile-report-stats")
+            .then((response) => response.json())
+            .then((data) => {
+                const formatRupiah = (angka) => {
+                    if (angka >= 1000000) {
+                        return "Rp " + (angka / 1000000).toFixed(1) + "jt";
+                    } else if (angka >= 1000) {
+                        return "Rp " + (angka / 1000).toFixed(1) + "K";
+                    }
+                    return "Rp " + angka.toLocaleString("id-ID");
+                };
+
+                const profileReportChartConfig = {
+                    chart: {
+                        height: 120,
+                        type: "line",
+                        toolbar: {
+                            show: false,
+                        },
+                        dropShadow: {
+                            enabled: true,
+                            top: 10,
+                            left: 5,
+                            blur: 3,
+                            color: config.colors.warning,
+                            opacity: 0.15,
+                        },
+                        sparkline: {
+                            enabled: true,
+                        },
+                    },
+                    grid: {
+                        show: false,
+                        padding: {
+                            right: 8,
+                        },
+                    },
+                    colors: [config.colors.warning],
+                    dataLabels: {
+                        enabled: true,
+                        formatter: (val) => formatRupiah(val),
+                        style: {
+                            fontSize: "10px",
+                            fontWeight: "bold",
+                            colors: ["#ffa60d"], // Warna label
+                        },
+                    },
+                    stroke: {
+                        width: 5,
+                        curve: "smooth",
+                    },
+                    series: [
+                        {
+                            data: data.trend, // Data trend dari API
+                        },
+                    ],
+                    xaxis: {
+                        categories: data.months,
+                        labels: {
+                            style: {
+                                fontSize: "12px",
+                                colors: "#6c757d",
+                            },
+                        },
+                    },
+                    yaxis: {
+                        labels: {
+                            formatter: (val) => formatRupiah(val),
+                            style: {
+                                fontSize: "12px",
+                                colors: "#6c757d",
+                            },
+                        },
+                    },
+                };
+
+                const profileReportChart = new ApexCharts(
+                    profileReportChartEl,
+                    profileReportChartConfig
+                );
+                profileReportChart.render();
+            })
+            .catch((error) =>
+                console.error("Error fetching profile report data:", error)
+            );
     }
 
     // Order Statistics Chart
     // --------------------------------------------------------------------
     const chartOrderStatistics = document.querySelector(
-            "#orderStatisticsChart"
-        ),
-        orderChartConfig = {
-            chart: {
-                height: 165,
-                width: 130,
-                type: "donut",
-            },
-            labels: ["Electronic", "Sports", "Decor", "Fashion"],
-            series: [85, 15, 50, 50],
-            colors: [
-                config.colors.primary,
-                config.colors.secondary,
-                config.colors.info,
-                config.colors.success,
-            ],
-            stroke: {
-                width: 5,
-                colors: cardColor,
-            },
-            dataLabels: {
-                enabled: false,
-                formatter: function (val, opt) {
-                    return parseInt(val) + "%";
-                },
-            },
-            legend: {
-                show: false,
-            },
-            grid: {
-                padding: {
-                    top: 0,
-                    bottom: 0,
-                    right: 15,
-                },
-            },
-            plotOptions: {
-                pie: {
-                    donut: {
-                        size: "75%",
-                        labels: {
-                            show: true,
-                            value: {
-                                fontSize: "1.5rem",
-                                fontFamily: "Public Sans",
-                                color: headingColor,
-                                offsetY: -15,
-                                formatter: function (val) {
-                                    return parseInt(val) + "%";
-                                },
-                            },
-                            name: {
-                                offsetY: 20,
-                                fontFamily: "Public Sans",
-                            },
-                            total: {
-                                show: true,
-                                fontSize: "0.8125rem",
-                                color: axisColor,
-                                label: "Weekly",
-                                formatter: function (w) {
-                                    return "38%";
+        "#orderStatisticsChart"
+    );
+    const orderStatisticsList = document.querySelector("#orderStatisticsList");
+
+    if (chartOrderStatistics !== null && orderStatisticsList !== null) {
+        // Fetch data dari backend
+        fetch("/api/order-statistics")
+            .then((response) => response.json())
+            .then((data) => {
+                // Update chart configuration
+                const orderChartConfig = {
+                    chart: {
+                        height: 165,
+                        width: 130,
+                        type: "donut",
+                    },
+                    labels: data.labels, // Labels dari API
+                    series: data.series, // Series dari API
+                    colors: [
+                        config.colors.primary,
+                        config.colors.secondary,
+                        config.colors.info,
+                        config.colors.success,
+                    ],
+                    stroke: {
+                        width: 5,
+                        colors: cardColor,
+                    },
+                    dataLabels: {
+                        enabled: true,
+                        formatter: function (val, opt) {
+                            return parseInt(val) + "%";
+                        },
+                    },
+                    legend: {
+                        show: false,
+                    },
+                    grid: {
+                        padding: {
+                            top: 0,
+                            bottom: 0,
+                            right: 15,
+                        },
+                    },
+                    plotOptions: {
+                        pie: {
+                            donut: {
+                                size: "75%",
+                                labels: {
+                                    show: true,
+                                    value: {
+                                        fontSize: "1.5rem",
+                                        fontFamily: "Public Sans",
+                                        color: headingColor,
+                                        offsetY: -15,
+                                        formatter: function (val) {
+                                            return parseInt(val);
+                                        },
+                                    },
+                                    name: {
+                                        offsetY: 20,
+                                        fontFamily: "Public Sans",
+                                    },
+                                    total: {
+                                        show: true,
+                                        fontSize: "0.8125rem",
+                                        color: axisColor,
+                                        label: "Total",
+                                        formatter: function (w) {
+                                            return w.globals.seriesTotals.reduce(
+                                                (a, b) => a + b,
+                                                0
+                                            );
+                                        },
+                                    },
                                 },
                             },
                         },
                     },
-                },
-            },
-        };
-    if (
-        typeof chartOrderStatistics !== undefined &&
-        chartOrderStatistics !== null
-    ) {
-        const statisticsChart = new ApexCharts(
-            chartOrderStatistics,
-            orderChartConfig
-        );
-        statisticsChart.render();
+                };
+
+                // Render chart
+                const statisticsChart = new ApexCharts(
+                    chartOrderStatistics,
+                    orderChartConfig
+                );
+                statisticsChart.render();
+
+                // Render list items
+                orderStatisticsList.innerHTML = ""; // Clear existing items
+                data.labels.forEach((label, index) => {
+                    const seriesValue = data.series[index];
+                    orderStatisticsList.innerHTML += `
+                    <li class="d-flex mb-4 pb-1">
+                        <div class="avatar flex-shrink-0 me-3">
+                            <span class="avatar-initial rounded bg-label-primary"><i class="bx bx-box"></i></span>
+                        </div>
+                        <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
+                            <div class="me-2">
+                                <h6 class="mb-0">${label}</h6>
+                                <small class="text-muted">Sales</small>
+                            </div>
+                            <div class="user-progress">
+                                <small class="fw-semibold">${seriesValue}</small>
+                            </div>
+                        </div>
+                    </li>
+                `;
+                });
+            })
+            .catch((error) =>
+                console.error("Error fetching chart data:", error)
+            );
     }
 
     // Income Chart - Area chart
     // --------------------------------------------------------------------
-    const incomeChartEl = document.querySelector("#incomeChart"),
-        incomeChartConfig = {
-            series: [
-                {
-                    data: [24, 21, 30, 22, 42, 26, 35, 29],
-                },
-            ],
-            chart: {
-                height: 215,
-                parentHeightOffset: 0,
-                parentWidthOffset: 0,
-                toolbar: {
-                    show: false,
-                },
-                type: "area",
-            },
-            dataLabels: {
-                enabled: false,
-            },
-            stroke: {
-                width: 2,
-                curve: "smooth",
-            },
-            legend: {
-                show: false,
-            },
-            markers: {
-                size: 6,
-                colors: "transparent",
-                strokeColors: "transparent",
-                strokeWidth: 4,
-                discrete: [
-                    {
-                        fillColor: config.colors.white,
-                        seriesIndex: 0,
-                        dataPointIndex: 7,
-                        strokeColor: config.colors.primary,
-                        strokeWidth: 2,
-                        size: 6,
-                        radius: 8,
-                    },
-                ],
-                hover: {
-                    size: 7,
-                },
-            },
-            colors: [config.colors.primary],
-            fill: {
-                type: "gradient",
-                gradient: {
-                    shade: shadeColor,
-                    shadeIntensity: 0.6,
-                    opacityFrom: 0.5,
-                    opacityTo: 0.25,
-                    stops: [0, 95, 100],
-                },
-            },
-            grid: {
-                borderColor: borderColor,
-                strokeDashArray: 3,
-                padding: {
-                    top: -20,
-                    bottom: -8,
-                    left: -10,
-                    right: 8,
-                },
-            },
-            xaxis: {
-                categories: [
-                    "",
-                    "Jan",
-                    "Feb",
-                    "Mar",
-                    "Apr",
-                    "May",
-                    "Jun",
-                    "Jul",
-                ],
-                axisBorder: {
-                    show: false,
-                },
-                axisTicks: {
-                    show: false,
-                },
-                labels: {
-                    show: true,
-                    style: {
-                        fontSize: "13px",
-                        colors: axisColor,
-                    },
-                },
-            },
-            yaxis: {
-                labels: {
-                    show: false,
-                },
-                min: 10,
-                max: 50,
-                tickAmount: 4,
-            },
-        };
-    if (typeof incomeChartEl !== undefined && incomeChartEl !== null) {
-        const incomeChart = new ApexCharts(incomeChartEl, incomeChartConfig);
-        incomeChart.render();
-    }
+    const incomeChartEl = document.querySelector("#incomeChart");
+    const expensesOfWeekEl = document.querySelector("#expensesOfWeek");
+    const totalBalanceEl = document.querySelector("#totalBalance");
+    const expenseDifferenceEl = document.querySelector("#expenseDifference");
 
-    // Expenses Mini Chart - Radial Chart
-    // --------------------------------------------------------------------
-    const weeklyExpensesEl = document.querySelector("#expensesOfWeek"),
-        weeklyExpensesConfig = {
-            series: [65],
-            chart: {
-                width: 60,
-                height: 60,
-                type: "radialBar",
-            },
-            plotOptions: {
-                radialBar: {
-                    startAngle: 0,
-                    endAngle: 360,
-                    strokeWidth: "8",
-                    hollow: {
-                        margin: 2,
-                        size: "45%",
+    if (incomeChartEl && expensesOfWeekEl) {
+        fetch("/api/dashboard-stats")
+            .then((response) => response.json())
+            .then((data) => {
+                // Konversi semua nilai ke angka
+                const totalIncome = parseFloat(data.totalIncome) || 0;
+                const totalExpenses = parseFloat(data.totalExpenses) || 0;
+                const totalProfit = parseFloat(data.totalProfit) || 0;
+                const expensesThisWeek = parseFloat(data.expensesThisWeek) || 0;
+                const expenseDifference =
+                    parseFloat(data.expenseDifference) || 0;
+
+                // Konversi incomeTrend ke format angka
+                const incomeTrend = Object.entries(data.incomeTrend).reduce(
+                    (acc, [month, value]) => {
+                        acc[month] = parseFloat(value);
+                        return acc;
                     },
-                    track: {
-                        strokeWidth: "50%",
-                        background: borderColor,
-                    },
-                    dataLabels: {
-                        show: true,
-                        name: {
-                            show: false,
+                    {}
+                );
+
+                // Format angka ke mata uang Rupiah
+                const formatRupiah = (angka) => {
+                    return angka.toLocaleString("id-ID", {
+                        style: "currency",
+                        currency: "IDR",
+                        minimumFractionDigits: 0,
+                    });
+                };
+
+                // Update Total Balance
+                totalBalanceEl.innerText = `${formatRupiah(totalIncome)}`;
+                const balanceChange =
+                    totalIncome > 0
+                        ? ((totalProfit / totalIncome) * 100).toFixed(1)
+                        : 0;
+                totalBalanceEl.nextElementSibling.innerHTML = `
+            <i class="bx ${
+                balanceChange > 0
+                    ? "bx-chevron-up text-success"
+                    : "bx-chevron-down text-danger"
+            }"></i> ${balanceChange}%
+        `;
+
+                // Render Income Chart
+                const incomeChartConfig = {
+                    series: [
+                        {
+                            data: Object.values(incomeTrend),
                         },
-                        value: {
-                            formatter: function (val) {
-                                return "$" + parseInt(val);
-                            },
-                            offsetY: 5,
-                            color: "#697a8d",
-                            fontSize: "13px",
+                    ],
+                    chart: {
+                        height: 430,
+                        type: "area",
+                        toolbar: {
                             show: true,
                         },
                     },
-                },
-            },
-            fill: {
-                type: "solid",
-                colors: config.colors.primary,
-            },
-            stroke: {
-                lineCap: "round",
-            },
-            grid: {
-                padding: {
-                    top: -10,
-                    bottom: -15,
-                    left: -10,
-                    right: -10,
-                },
-            },
-            states: {
-                hover: {
-                    filter: {
-                        type: "none",
+                    xaxis: {
+                        categories: Object.keys(incomeTrend),
                     },
-                },
-                active: {
-                    filter: {
-                        type: "none",
+                    yaxis: {
+                        labels: {
+                            formatter: function (val) {
+                                if (val >= 1000000) {
+                                    return (
+                                        "Rp " +
+                                        (val / 1000000).toFixed(2) +
+                                        "jt"
+                                    );
+                                } else if (val >= 1000) {
+                                    return (
+                                        "Rp " + (val / 1000).toFixed(1) + "K"
+                                    );
+                                }
+                                return "Rp " + val.toLocaleString("id-ID");
+                            },
+                        },
                     },
-                },
-            },
-        };
-    if (typeof weeklyExpensesEl !== undefined && weeklyExpensesEl !== null) {
-        const weeklyExpenses = new ApexCharts(
-            weeklyExpensesEl,
-            weeklyExpensesConfig
-        );
-        weeklyExpenses.render();
+                    dataLabels: {
+                        enabled: true,
+                        formatter: function (val) {
+                            if (val >= 1000000) {
+                                return (
+                                    "Rp " + (val / 1000000).toFixed(2) + "jt"
+                                );
+                            } else if (val >= 1000) {
+                                return "Rp " + (val / 1000).toFixed(1) + "K";
+                            }
+                            return "Rp " + val.toLocaleString("id-ID");
+                        },
+                        style: {
+                            colors: ["#ffa60d"], // Optional: Warna teks label
+                        },
+                    },
+                    tooltip: {
+                        y: {
+                            formatter: function (val) {
+                                return "Rp " + val.toLocaleString("id-ID");
+                            },
+                        },
+                    },
+                    colors: [config.colors.primary],
+                    fill: {
+                        type: "gradient",
+                        gradient: {
+                            shade: "light",
+                            shadeIntensity: 0.6,
+                            opacityFrom: 0.5,
+                            opacityTo: 0.25,
+                        },
+                    },
+                };
+
+                const incomeChart = new ApexCharts(
+                    incomeChartEl,
+                    incomeChartConfig
+                );
+                incomeChart.render();
+            })
+            .catch((error) =>
+                console.error("Error fetching dashboard stats:", error)
+            );
     }
 })();
