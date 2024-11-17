@@ -32,8 +32,10 @@
                 <input type="url" class="form-control" id="website" name="website" value="{{ $supplier->website }}">
             </div>
             <div class="form-check mb-3">
-                <input class="form-check-input" type="checkbox" id="is_active" name="is_active" {{ $supplier->is_active
-                ? 'checked' : '' }}>
+                <!-- Hidden field to handle unchecked state -->
+                <input type="hidden" name="is_active" value="0">
+                <input class="form-check-input" type="checkbox" id="is_active" name="is_active" value="1"
+                    {{ $supplier->is_active ? 'checked' : '' }}>
                 <label class="form-check-label" for="is_active">Active</label>
             </div>
             <button type="submit" class="btn btn-primary">Update Supplier</button>

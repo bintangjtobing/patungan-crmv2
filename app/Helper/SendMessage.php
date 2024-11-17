@@ -71,11 +71,6 @@ class SendMessage
 
     protected function handleResponse($response)
     {
-        // Notification::make()
-        //     ->success()
-        //     ->title('Message Sent')
-        //     ->body('The message has been successfully sent via Fonnte.')
-        //     ->send();
 
         notify()->success('The message has been successfully sent via Fonnte.');
 

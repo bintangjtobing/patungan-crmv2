@@ -29,7 +29,9 @@
                 <input type="url" class="form-control" id="website" name="website">
             </div>
             <div class="form-check mb-3">
-                <input class="form-check-input" type="checkbox" id="is_active" name="is_active">
+                <!-- Add a hidden field for unchecked value -->
+                <input type="hidden" name="is_active" value="0">
+                <input class="form-check-input" type="checkbox" id="is_active" name="is_active" value="1">
                 <label class="form-check-label" for="is_active">Active</label>
             </div>
             <button type="submit" class="btn btn-primary">Save Supplier</button>

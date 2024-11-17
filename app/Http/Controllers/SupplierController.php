@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Supplier;
 use Illuminate\Http\Request;
 use Ramsey\Uuid\Uuid;
+use Illuminate\Support\Facades\Log;
 
 class SupplierController extends Controller
 {
@@ -32,6 +33,7 @@ class SupplierController extends Controller
      */
     public function store(Request $request)
     {
+        // Validate the incoming request
         $request->validate([
             'name' => 'required|string|max:255',
             'contact_email' => 'nullable|email|max:255',
@@ -41,6 +43,7 @@ class SupplierController extends Controller
             'is_active' => 'boolean',
         ]);
 
+        // Create the supplier record
         Supplier::create([
             'uuid' => Uuid::uuid4(),
             'name' => $request->name,
@@ -51,9 +54,11 @@ class SupplierController extends Controller
             'is_active' => $request->has('is_active') ? $request->is_active : false,
         ]);
 
+        // Notify and redirect
         notify()->success('Supplier created successfully!');
         return redirect()->route('suppliers.index');
     }
+
 
     /**
      * Display the specified supplier.
@@ -78,6 +83,7 @@ class SupplierController extends Controller
      */
     public function update(Request $request, Supplier $supplier)
     {
+        // Validate the incoming request
         $request->validate([
             'name' => 'required|string|max:255',
             'contact_email' => 'nullable|email|max:255',
@@ -87,6 +93,7 @@ class SupplierController extends Controller
             'is_active' => 'boolean',
         ]);
 
+        // Update the supplier record
         $supplier->update([
             'name' => $request->name,
             'contact_email' => $request->contact_email,
@@ -96,8 +103,9 @@ class SupplierController extends Controller
             'is_active' => $request->has('is_active') ? $request->is_active : false,
         ]);
 
+        // Notify and redirect
         notify()->success('Supplier updated successfully!');
-        return redirect()->route('dashboard.suppliers.index');
+        return redirect()->route('suppliers.index');
     }
 
     /**
@@ -107,6 +115,6 @@ class SupplierController extends Controller
     {
         $supplier->delete();
         notify()->success('Supplier deleted successfully!');
-        return redirect()->route('dashboard.suppliers.index');
+        return redirect()->route('suppliers.index');
     }
 }
