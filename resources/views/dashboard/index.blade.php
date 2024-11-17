@@ -3,7 +3,7 @@
 @section('content')
 <div class="col-lg-4 col-md-4 order-1">
     <div class="row">
-        <div class="col-lg-12 col-md-12 col-12 mb-4">
+        <div class="col-lg-6 col-md-6 col-12 mb-4">
             <div class="card text-center">
                 <div class="card-body">
                     <!-- Rocket icon centered and enlarged -->
@@ -14,12 +14,12 @@
                             Your browser does not support the video tag.
                         </video>
                     </div>
-                    <span class="fw-semibold d-block mb-3" style="font-size: 1.2em;">Fast Create Leads</span>
+                    <span class="fw-semibold d-block mb-3" style="font-size: 1.2em;">Fast Create</span>
 
                     <!-- Animated button with glowing shadow -->
                     <button class="btn btn-primary w-100 animated-btn" data-bs-toggle="modal"
                         data-bs-target="#confirmTransferModal" style="box-shadow: 0px 0px 10px rgba(255, 165, 0, 0.8);">
-                        Start Process
+                        Start
                     </button>
                 </div>
             </div>
