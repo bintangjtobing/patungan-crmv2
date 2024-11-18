@@ -20,8 +20,8 @@ class TransactionController extends Controller
     public function index()
     {
         $transactions = Transaction::with(['user', 'product', 'supplier'])
-        ->orderBy('created_at', 'desc')
-        ->get();
+            ->orderBy('created_at', 'desc')
+            ->get();
 
         // Grouping berdasarkan bulan dan tahun
         $groupedTransactions = $transactions->groupBy(function ($item) {
@@ -117,46 +117,51 @@ class TransactionController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $transaction = Transaction::findOrFail($id);
+        try {
+            $transaction = Transaction::findOrFail($id);
 
-        $request->validate([
-            'user_id' => 'required|exists:users,id',
-            'jenis_transaksi' => 'required|boolean',
-            'product_uuid' => 'required|exists:products,uuid',
-            'description' => 'nullable|string',
-            'jumlah' => 'required|integer',
-            'harga' => 'required|integer',
-            'tanggal_waktu_transaksi_selesai' => 'nullable|date',
-            'bukti_transaksi' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048'
-        ]);
+            $request->validate([
+                'user_id' => 'required|exists:users,id',
+                'jenis_transaksi' => 'required|boolean',
+                'product_uuid' => 'required|exists:products,uuid',
+                'description' => 'nullable|string',
+                'jumlah' => 'required|integer',
+                'harga' => 'required|integer',
+                'tanggal_waktu_transaksi_selesai' => 'nullable|date',
+                'bukti_transaksi' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            ]);
 
-        $data = $request->only([
-            'user_id',
-            'jenis_transaksi',
-            'product_uuid',
-            'description',
-            'jumlah',
-            'harga',
-            'tanggal_waktu_transaksi_selesai'
-        ]);
+            $data = $request->only([
+                'user_id',
+                'jenis_transaksi',
+                'product_uuid',
+                'description',
+                'jumlah',
+                'harga',
+                'tanggal_waktu_transaksi_selesai',
+            ]);
 
-        if ($request->hasFile('bukti_transaksi')) {
-            if ($transaction->bukti_transaksi) {
-                $publicId = basename($transaction->bukti_transaksi, '.' . pathinfo($transaction->bukti_transaksi, PATHINFO_EXTENSION));
-                Cloudinary::destroy($publicId);
+            if ($request->hasFile('bukti_transaksi')) {
+                if ($transaction->bukti_transaksi) {
+                    $publicId = basename($transaction->bukti_transaksi, '.' . pathinfo($transaction->bukti_transaksi, PATHINFO_EXTENSION));
+                    Cloudinary::destroy($publicId);
+                }
+
+                $uploadedFileUrl = Cloudinary::upload($request->file('bukti_transaksi')->getRealPath())->getSecurePath();
+                $data['bukti_transaksi'] = $uploadedFileUrl;
+                $data['status'] = 1;
+            } else {
+                $data['status'] = $transaction->status;
             }
 
-            $uploadedFileUrl = Cloudinary::upload($request->file('bukti_transaksi')->getRealPath())->getSecurePath();
-            $data['bukti_transaksi'] = $uploadedFileUrl;
-            $data['status'] = 1;
-        } else {
-            $data['status'] = $transaction->status;
+            $transaction->update($data);
+
+            notify()->success('Transaction updated successfully!', 'Success');
+            return redirect()->route('transactions.index');
+        } catch (\Exception $e) {
+            notify()->error('Failed to update transaction.', 'Error');
+            return redirect()->back()->withInput()->withErrors(['error' => $e->getMessage()]);
         }
-
-        $transaction->update($data);
-        notify()->success('Transaction updated successfully!', 'Success');
-
-        return redirect()->route('transactions.index');
     }
 
     /**
@@ -196,12 +201,12 @@ class TransactionController extends Controller
     public function getOrderStatisticsData()
     {
         $transactions = DB::table('transactions')
-        ->join('products', 'transactions.product_uuid', '=', 'products.uuid')
-        ->selectRaw('products.nama AS product_name, COUNT(transactions.id) AS total, MAX(transactions.created_at) AS latest_transaction')
-        ->where('transactions.jenis_transaksi', 1)
-        ->groupBy('products.nama')
-        ->orderBy('latest_transaction', 'desc')
-        ->get();
+            ->join('products', 'transactions.product_uuid', '=', 'products.uuid')
+            ->selectRaw('products.nama AS product_name, COUNT(transactions.id) AS total, MAX(transactions.created_at) AS latest_transaction')
+            ->where('transactions.jenis_transaksi', 1)
+            ->groupBy('products.nama')
+            ->orderBy('latest_transaction', 'desc')
+            ->get();
 
         $labels = $transactions->pluck('product_name');
         $series = $transactions->pluck('total');
@@ -210,6 +215,5 @@ class TransactionController extends Controller
             'labels' => $labels,
             'series' => $series,
         ]);
-
     }
 }

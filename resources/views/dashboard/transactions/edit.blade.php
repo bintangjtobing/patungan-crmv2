@@ -30,7 +30,7 @@
                 <select name="product_uuid" id="product_uuid" class="form-select" required>
                     @foreach($products as $product)
                     <option value="{{ $product->uuid }}" {{ $transaction->product_uuid == $product->uuid ? 'selected' :
-                        '' }}>{{ $product->name }}</option>
+                        '' }}>{{ $product->nama }}</option>
                     @endforeach
                 </select>
             </div>
@@ -39,12 +39,11 @@
             <div class="mb-3">
                 <label for="jenis_transaksi" class="form-label">Transaction Type</label>
                 <select name="jenis_transaksi" id="jenis_transaksi" class="form-select" required>
-                    <option value="penjualan" {{ $transaction->jenis_transaksi == 'penjualan' ? 'selected' : ''
-                        }}>Penjualan</option>
-                    <option value="pembelian" {{ $transaction->jenis_transaksi == 'pembelian' ? 'selected' : ''
-                        }}>Pembelian</option>
+                    <option value="1" {{ $transaction->jenis_transaksi == 1 ? 'selected' : '' }}>Penjualan</option>
+                    <option value="0" {{ $transaction->jenis_transaksi == 0 ? 'selected' : '' }}>Pembelian</option>
                 </select>
             </div>
+
 
             <!-- Description -->
             <div class="mb-3">
