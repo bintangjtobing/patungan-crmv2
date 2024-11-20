@@ -126,5 +126,12 @@
                 <div data-i18n="Kredential Customers">Kredential Customers</div>
             </a>
         </li>
+        <!-- Finance Report -->
+        <li class="menu-item {{ Request::is('finance-report') ? 'active' : '' }}">
+            <a href="/finance-report" class="menu-link">
+                <i class="menu-icon tf-icons bx bx-bar-chart-alt-2"></i>
+                <div data-i18n="Finance Report">Finance Report</div>
+            </a>
+        </li>
     </ul>
 </aside>
