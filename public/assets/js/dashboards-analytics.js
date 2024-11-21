@@ -68,7 +68,47 @@
                                     "Dec",
                                 ],
                             },
-                            yaxis: { title: { text: "Revenue (Rp)" } },
+                            yaxis: {
+                                title: { text: "Revenue (Rp)" },
+                                labels: {
+                                    formatter: function (value) {
+                                        if (value >= 1000000000) {
+                                            return `Rp ${(
+                                                value / 1000000000
+                                            ).toFixed(1)}M`;
+                                        } else if (value >= 1000000) {
+                                            return `Rp ${(
+                                                value / 1000000
+                                            ).toFixed(1)}Jt`;
+                                        } else if (value >= 1000) {
+                                            return `Rp ${(value / 1000).toFixed(
+                                                1
+                                            )}K`;
+                                        }
+                                        return `Rp ${value}`;
+                                    },
+                                },
+                            },
+                            tooltip: {
+                                y: {
+                                    formatter: function (value) {
+                                        if (value >= 1000000000) {
+                                            return `Rp ${(
+                                                value / 1000000000
+                                            ).toFixed(1)}M`;
+                                        } else if (value >= 1000000) {
+                                            return `Rp ${(
+                                                value / 1000000
+                                            ).toFixed(1)}Jt`;
+                                        } else if (value >= 1000) {
+                                            return `Rp ${(value / 1000).toFixed(
+                                                1
+                                            )}K`;
+                                        }
+                                        return `Rp ${value}`;
+                                    },
+                                },
+                            },
                         };
 
                         // Render the chart

@@ -1,5 +1,20 @@
 @extends('dashboard.layout.index')
 @section('title', 'Dashboard homepage')
+@php
+function formatRupiahShort($angka) {
+if ($angka >= 1000000000) {
+// Format ke M (Miliar)
+return 'Rp ' . number_format($angka / 1000000000, 1) . 'M';
+} elseif ($angka >= 1000000) {
+// Format ke Jt (Juta)
+return 'Rp ' . number_format($angka / 1000000, 1) . 'Jt';
+} elseif ($angka >= 1000) {
+// Format ke K (Ribu)
+return 'Rp ' . number_format($angka / 1000, 1) . 'K';
+}
+return 'Rp ' . number_format($angka, 0, ',', '.');
+}
+@endphp
 @section('content')
 <div class="col-lg-8 mb-4 order-0">
     <div class="card">
@@ -109,8 +124,7 @@
                         </div>
                         <div class="d-flex flex-column">
                             <small>{{ $selectedYear }}</small>
-                            <h6 class="mb-0">Rp {{ number_format($currentTotal, 0, ',', '.') }}</h6>
-
+                            <h6 class="mb-0">{{ formatRupiahShort($currentTotal) }}</h6>
                         </div>
                     </div>
                     <div class="d-flex">
@@ -119,7 +133,7 @@
                         </div>
                         <div class="d-flex flex-column">
                             <small>{{ $previousYear }}</small>
-                            <h6 class="mb-0">Rp {{ number_format($previousTotal, 0, ',', '.') }}</h6>
+                            <h6 class="mb-0">{{ formatRupiahShort($previousTotal) }}</h6>
                         </div>
                     </div>
                 </div>
