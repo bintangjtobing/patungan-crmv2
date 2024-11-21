@@ -8,6 +8,7 @@
     <title>
         Gabung bersama temanPatungan! - PatunganYukIDN
     </title>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="canonical" href="https://patunganyuk.com">
     <meta name="description"
         content="PatunganYuk! adalah platform online yang memudahkan Anda mengelola data pelanggan, transaksi, dan reminder pembayaran, sekaligus berbagi biaya layanan streaming seperti Netflix, Spotify, Disney+, dan lainnya. Hemat uang sambil menikmati akses premium bersama teman atau pengguna lain.">
@@ -16,6 +17,8 @@
     <meta name="keywords"
         content="PatunganYuk, layanan streaming, berbagi biaya, Netflix, Spotify, Disney+, platform online, hemat uang">
     <link rel="icon" href="https://res.cloudinary.com/boxity-id/image/upload/v1720974566/2_rpjs5h.png" type="image/png">
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
     <script type="application/ld+json">
         {
           "@context": "https://schema.org",
@@ -101,12 +104,12 @@
         <div id="registrationForm"
             class="bg-white bg-opacity-70 rounded-3xl p-8 w-full max-w-lg shadow-lg transition-all">
             <h2 class="text-2xl font-bold text-gray-800 mb-6">User Registration Data Form</h2>
-            <form class="space-y-4" onsubmit="showSubscriptionForm(event)">
-                <input type="text" placeholder="Your full name"
+            <form id="registerForm" class="space-y-4" onsubmit="showSubscriptionForm(event)">
+                <input type="text" name="name" placeholder="Your full name"
                     class="w-full px-4 py-4 rounded-2xl bg-white bg-opacity-80 text-gray-700 border border-white focus:outline-none focus:border-blue-500" />
-                <input type="email" placeholder="Email address"
+                <input type="email" name="email" placeholder="Email address"
                     class="w-full px-4 py-4 rounded-2xl bg-white bg-opacity-80 text-gray-700 border border-white focus:outline-none focus:border-blue-500" />
-                <input type="tel" placeholder="Number phone"
+                <input type="tel" name="no_hp" placeholder="Number phone"
                     class="w-full px-4 py-4 rounded-2xl bg-white bg-opacity-80 text-gray-700 border border-white focus:outline-none focus:border-blue-500" />
                 <button type="submit"
                     class="w-full py-3 bg-[#FFA60D] text-white font-semibold rounded-xl focus:outline-none transition duration-300">NEXT</button>
@@ -117,92 +120,87 @@
         <div id="subscriptionForm"
             class="hidden bg-white bg-opacity-70 rounded-3xl p-8 w-full max-w-lg shadow-lg transition-all">
             <h2 class="text-2xl font-bold text-gray-800 mb-1">Berlangganan</h2>
-            <p class="text-gray-800 font-semibold text-sm mt-3">
-                Netflix Personal Private
+            <!-- Paragraf untuk Nama Produk -->
+            <p id="productName" class="text-gray-800 font-semibold text-sm mt-3">
+                Pilih produk untuk melihat detail.
             </p>
-            <p class="mb-6 mt-1 text-gray-500 text-sm"> Private Netflix account for personal use. Our best video quality
-                in Ultra HD (4K) and HDR. Spatial audio
-                available. Watch ad-free on any phone, tablet, computer, or TV.</p>
+            <!-- Paragraf untuk Deskripsi Produk -->
+            <p id="productDescription" class="mb-6 mt-1 text-gray-500 text-sm">
+                Silakan pilih produk untuk melihat deskripsi.
+            </p>
             <form class="space-y-4" onsubmit="showPaymentForm(event)">
-                <select
-                    class="w-full px-4 py-4 rounded-2xl bg-white bg-opacity-50 text-gray-700 border border-white focus:outline-none focus:border-blue-500">
-                    <option>Pilih produk</option>
-                    <option>Netflix Standard</option>
-                    <option>Netflix Premium</option>
+                <select id="productSelect"
+                    class="w-full px-4 py-4 rounded-2xl bg-white bg-opacity-50 text-gray-700 border border-white focus:outline-none focus:border-blue-500"
+                    onchange="updateProductDetails()">
+                    <option value="" data-name="Pilih produk" data-description="Silakan pilih produk" data-price="">
+                        Pilih produk
+                    </option>
+                    @foreach ($products->unique('uuid') as $product)
+                    <option value="{{ $product->uuid }}" data-description="{{ $product->description }}"
+                        data-price="{{ $product->harga_jual }}">
+                        {{ $product->nama }}
+                    </option>
+                    @endforeach
                 </select>
-                <input type="text" placeholder="Harga"
-                    class="w-full px-4 py-4 rounded-2xl bg-white bg-opacity-50 text-gray-700 border border-white focus:outline-none focus:border-blue-500" />
+                <input id="productPrice" type="text" placeholder="Harga"
+                    class="w-full px-4 py-4 rounded-2xl bg-white bg-opacity-50 text-gray-700 border border-white focus:outline-none focus:border-blue-500"
+                    readonly />
                 <button type="submit"
                     class="w-full py-3 bg-[#FFA60D] text-white font-semibold rounded-xl focus:outline-none transition duration-300">NEXT</button>
             </form>
         </div>
 
+
         <!-- Payment Form -->
         <div id="paymentForm"
             class="hidden bg-white bg-opacity-70 rounded-3xl p-8 w-full max-w-lg shadow-lg transition-all border-2 border-blue-200">
+            <div id="paymentInfo" class="mt-2 text-sm text-gray-700 hidden"></div>
             <h2 class="text-2xl font-bold text-gray-800 mb-6">Pilih Pembayaran</h2>
             <form class="space-y-4" onsubmit="showConfirmationMessage(event)">
                 <select id="paymentMethod" onchange="togglePaymentSection()"
                     class="w-full px-4 py-4 rounded-2xl bg-white bg-opacity-50 text-gray-700 border border-white focus:outline-none focus:border-blue-500">
                     <option value="">Pilih Metode Pembayaran</option>
-                    <option value="qris">QRIS</option>
-                    <option value="ewallet">E-Wallet</option>
+                    <option value="6">QRIS</option>
+                    @foreach ($rekenings->unique('id') as $rekening)
+                    <option value="{{ $rekening->id }}">{{ $rekening->bank }} - {{ $rekening->no_rek }}</option>
+                    @endforeach
                 </select>
 
                 <!-- QR Code Section -->
-                <div id="qrisSection" class="space-y-4 bg-white border border-white bg-opacity-50 py-5 rounded-xl">
+                <div id="qrisSection" class="hidden space-y-4">
                     <p class="text-center text-gray-600">Untuk QRIS, kamu bisa memindai QR Code ini ya</p>
                     <div class="flex justify-center my-4">
-                        <img src="https://via.placeholder.com/150" alt="QR Code" class="w-32 h-32">
+                        <img src="https://res.cloudinary.com/dflafxsqp/image/upload/v1732206306/rekening/yta7g9wyl0wbz1kgp9vl.png"
+                            alt="QR Code" class="w-32 h-32">
                     </div>
                 </div>
 
-                <!-- E-Wallet Section (Initially Hidden) -->
                 <div id="ewalletSection" class="hidden space-y-4">
                     <p class="text-center text-gray-800 font-semibold">Pembayaran Melalui E-Wallet</p>
+                    @foreach ($rekenings->where('type', 'emoney') as $rekening)
                     <div class="grid grid-cols-2 gap-3">
                         <div class="flex flex-col">
-                            <label class="text-gray-700">OVO</label>
-                            <input type="text" value="081262845980"
-                                class="px-4 py-2 rounded-3xl bg-gray-200 text-gray-700 border border-gray-300 bg-white bg-opacity-50"
-                                readonly />
-                        </div>
-                        <div class="w-fit">
-                            <label class="text-gray-700">Nama</label>
-                            <input type="text" value="BINTANG CATO JEREMIA L TOB"
-                                class="w-48 px-4 py-2 rounded-3xl bg-gray-200 text-gray-700 border border-gray-300"
-                                readonly />
-                        </div>
-                    </div>
-                    <div class="grid grid-cols-2 gap-3">
-                        <div class="flex flex-col">
-                            <label class="text-gray-700">Shopee</label>
-                            <input type="text" value="081262845980"
+                            <label class="text-gray-700">{{ ucfirst($rekening->bank) }}</label>
+                            <input type="text" value="{{ $rekening->no_rek }}"
                                 class="px-4 py-2 rounded-3xl bg-gray-200 text-gray-700 border border-gray-300"
                                 readonly />
                         </div>
                         <div class="w-fit">
                             <label class="text-gray-700">Nama</label>
-                            <input type="text" value="BINTANG CATO JEREMIA L TOB"
+                            <input type="text" value="{{ $rekening->name }}"
                                 class="w-48 px-4 py-2 rounded-3xl bg-gray-200 text-gray-700 border border-gray-300"
                                 readonly />
                         </div>
                     </div>
-                    <div class="grid grid-cols-2 gap-3">
-                        <div class="flex flex-col">
-                            <label class="text-gray-700">Dana</label>
-                            <input type="text" value="081262845980"
-                                class="px-4 py-2 rounded-3xl bg-gray-200 text-gray-700 border border-gray-300"
-                                readonly />
-                        </div>
-                        <div class="w-fit">
-                            <label class="text-gray-700">Nama</label>
-                            <input type="text" value="BINTANG CATO JEREMIA L TOB"
-                                class="w-48 px-4 py-2 rounded-3xl bg-gray-200 text-gray-700 border border-gray-300"
-                                readonly />
-                        </div>
-                    </div>
+                    @endforeach
                 </div>
+                <!-- Upload Bukti Pembayaran -->
+                <div class="space-y-4">
+                    <label for="paymentProof" class="text-gray-700 font-semibold">Unggah Bukti Pembayaran:</label>
+                    <input type="file" id="paymentProof" name="paymentProof"
+                        class="w-full px-4 py-3 rounded-xl bg-gray-100 border border-gray-300 focus:outline-none">
+                </div>
+
 
                 <button type="submit"
                     class="w-full py-3 bg-[#FFA60D] text-white font-semibold rounded-xl focus:outline-none transition duration-300">SUBMIT</button>
@@ -226,7 +224,8 @@
 
     <script>
         function showSubscriptionForm(event) {
-            event.preventDefault();
+            event.preventDefault(); // Prevent page reload
+            console.log("Switching to subscription form...");
             document.getElementById('registrationForm').classList.add('hidden');
             document.getElementById('subscriptionForm').classList.remove('hidden');
         }
@@ -237,33 +236,216 @@
             document.getElementById('paymentForm').classList.remove('hidden');
         }
 
-        function showConfirmationMessage(event) {
-            event.preventDefault();
-            document.getElementById('paymentForm').classList.add('hidden');
-            document.getElementById('confirmationMessage').classList.remove('hidden');
-        }
+        function populateDropdowns(data) {
+            const productSelect = document.querySelector("#productSelect");
+            const paymentMethodSelect = document.querySelector("#paymentMethod");
 
-        function resetForm() {
-            document.getElementById('confirmationMessage').classList.add('hidden');
-            document.getElementById('registrationForm').classList.remove('hidden');
+            // Hapus semua opsi sebelumnya (kecuali default)
+            productSelect.innerHTML = `
+                <option value="" data-name="Pilih produk" data-description="Silakan pilih produk untuk melihat deskripsi.">
+                    Pilih produk
+                </option>`;
+            paymentMethodSelect.innerHTML = `<option value="">Pilih Metode Pembayaran</option>`;
+
+            // **Tambahkan opsi "QRIS" dan "E-Wallet"**
+            const optionQris = document.createElement("option");
+            optionQris.value = "qris";
+            optionQris.textContent = "QRIS";
+            paymentMethodSelect.appendChild(optionQris);
+
+            const optionEwallet = document.createElement("option");
+            optionEwallet.value = "ewallet";
+            optionEwallet.textContent = "E-Wallet";
+            paymentMethodSelect.appendChild(optionEwallet);
+
+            // Tambahkan produk baru
+            data.products.forEach((product) => {
+                const option = document.createElement("option");
+                option.value = product.uuid;
+                option.textContent = product.nama;
+                option.setAttribute("data-name", product.nama);
+                option.setAttribute("data-description", product.description);
+                option.setAttribute("data-price", product.harga_jual);
+                productSelect.appendChild(option);
+            });
+
+            // Tambahkan rekening baru
+            data.rekenings.forEach((rekening) => {
+                const option = document.createElement("option");
+                option.value = rekening.id;
+                option.textContent = `${rekening.bank} - ${rekening.no_rek}`;
+                paymentMethodSelect.appendChild(option);
+            });
+        }
+        function updateProductDetails() {
+            const productSelect = document.getElementById("productSelect");
+            const selectedOption = productSelect.options[productSelect.selectedIndex];
+
+            // Ambil data dari atribut data-name, data-description, dan data-price
+            const name = selectedOption.getAttribute("data-name") || "Pilih produk";
+            const description = selectedOption.getAttribute("data-description") || "Silakan pilih produk untuk melihat deskripsi.";
+            const price = selectedOption.getAttribute("data-price") || "";
+
+            // Perbarui elemen nama produk, deskripsi, dan harga
+            document.getElementById("productName").textContent = name;
+            document.getElementById("productDescription").textContent = description;
+            document.getElementById("productPrice").value = price ? `Rp ${Number(price).toLocaleString('id-ID')}` : "";
         }
 
         function togglePaymentSection() {
             const paymentMethod = document.getElementById("paymentMethod").value;
             const qrisSection = document.getElementById("qrisSection");
             const ewalletSection = document.getElementById("ewalletSection");
+            const paymentInfo = document.getElementById("paymentInfo");
 
             if (paymentMethod === "qris") {
                 qrisSection.classList.remove("hidden");
                 ewalletSection.classList.add("hidden");
-            } else if (paymentMethod === "ewallet") {
-                ewalletSection.classList.remove("hidden");
+                paymentInfo.textContent = "Anda memilih pembayaran menggunakan QRIS.";
+                paymentInfo.classList.remove("hidden");
+            } else if (!isNaN(paymentMethod)) {
                 qrisSection.classList.add("hidden");
+                ewalletSection.classList.add("hidden");
+                paymentInfo.textContent = `Anda memilih metode pembayaran: ${paymentMethod}`;
+                paymentInfo.classList.remove("hidden");
             } else {
                 qrisSection.classList.add("hidden");
                 ewalletSection.classList.add("hidden");
+                paymentInfo.textContent = "";
+                paymentInfo.classList.add("hidden");
             }
         }
+        async function uploadPaymentProof(paymentProof) {
+            const formData = new FormData();
+            formData.append("paymentProof", paymentProof);
+
+            // Ambil CSRF token dari meta tag jika ada
+            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute("content");
+
+            try {
+                const response = await fetch("/upload-payment-proof", {
+                    method: "POST",
+                    headers: {
+                        ...(csrfToken && { "X-CSRF-TOKEN": csrfToken }),
+                    },
+                    body: formData,
+                });
+
+                if (!response.ok) {
+                    const result = await response.json();
+                    throw new Error(result.message || "Gagal mengunggah bukti pembayaran.");
+                }
+
+                const result = await response.json();
+                return result.path; // Mengembalikan path file bukti pembayaran
+            } catch (error) {
+                console.error("Error uploading payment proof:", error);
+                throw error;
+            }
+        }
+
+        async function showConfirmationMessage(event) {
+            event.preventDefault();
+
+            try {
+                const paymentProof = document.getElementById("paymentProof").files[0];
+                if (!paymentProof) {
+                    alert("Harap unggah bukti pembayaran sebelum melanjutkan.");
+                    return;
+                }
+
+                const formData = new FormData();
+                formData.append("paymentProof", paymentProof);
+
+                // Step 1: Upload payment proof
+                const uploadResponse = await fetch("/upload-payment-proof", {
+                    method: "POST",
+                    body: formData,
+                });
+
+                const uploadResult = await uploadResponse.json();
+                if (!uploadResponse.ok) {
+                    console.error("Upload Error:", uploadResult);
+                    throw new Error(uploadResult.message || "Gagal mengunggah bukti pembayaran.");
+                }
+
+                const buktiTransaksiUrl = uploadResult.path;
+
+                // Step 2: Send transaction data
+                const payload = {
+                    name: document.querySelector('input[name="name"]').value,
+                    email: document.querySelector('input[name="email"]').value,
+                    no_hp: document.querySelector('input[name="no_hp"]').value,
+                    product_uuid: document.querySelector('#productSelect').value,
+                    bukti_transaksi: buktiTransaksiUrl,
+                };
+
+                const transactionResponse = await fetch("/customer/transaction/create", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(payload),
+                });
+
+                const transactionResult = await transactionResponse.json();
+                console.log("Transaction Response:", transactionResult);
+
+                if (!transactionResponse.ok) {
+                    throw new Error(transactionResult.message || "Gagal membuat transaksi.");
+                }
+
+                // alert("Transaksi berhasil disimpan!");
+                document.getElementById("paymentForm").classList.add("hidden");
+                document.getElementById("confirmationMessage").classList.remove("hidden");
+            } catch (error) {
+                console.error("Error creating transaction:", error);
+                alert(`Terjadi kesalahan: ${error.message}`);
+            }
+        }
+
+        function resetForm() {
+            if (confirm("Kunjungi halaman Instagram @patunganyukidn dan ikuti kami untuk mendapatkan informasi terbaru. Apakah Anda ingin melanjutkan?")) {
+                window.location.href = "https://www.instagram.com/patunganyukidn";
+            }
+        }
+
+        function validateFileUpload() {
+            const paymentProof = document.getElementById("paymentProof").files[0];
+            const allowedExtensions = ["image/jpeg", "image/png"];
+            const maxFileSize = 2 * 1024 * 1024; // 2 MB
+
+            if (!paymentProof) {
+                alert("Harap unggah bukti pembayaran.");
+                return false;
+            }
+
+            if (!allowedExtensions.includes(paymentProof.type)) {
+                alert("Format file tidak didukung. Gunakan file JPEG atau PNG.");
+                return false;
+            }
+
+            if (paymentProof.size > maxFileSize) {
+                alert("Ukuran file terlalu besar. Maksimal 2 MB.");
+                return false;
+            }
+
+            return true;
+        }
+
+
+
+        document.addEventListener("DOMContentLoaded", () => {
+        fetch("/api/payment-data")
+            .then((response) => response.json())
+            .then((data) => {
+                console.log("Data Produk:", data.products);
+                console.log("Data Rekening:", data.rekenings);
+
+                populateDropdowns(data);
+            })
+            .catch((error) => console.error("Error fetching data:", error));
+    });
     </script>
 </body>
 

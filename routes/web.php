@@ -13,15 +13,40 @@ use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\ProfileReportController;
 use App\Http\Controllers\FinanceReportController;
 use App\Exports\FinanceReportExport;
+use App\Http\Controllers\PaymentController;
 use App\Models\KredentialCustomer;
+use App\Models\Product;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Http\Request;
+use App\Models\Rekening;
+use App\Http\Controllers\CustomerTransactionController;
 
 Route::get('/', function () {
     return redirect('/dashboard');
 });
 Route::get('/register', function () {
-    return view('fe.register');
+    $products = Product::where('status', 1)->distinct()->get();
+    $rekenings = Rekening::where('bank', '!=', 'QRIS')->where('is_active', 1)->distinct()->get();
+
+
+    // dd([
+    //     'products' => $products,
+    //     'rekenings' => $rekenings
+    // ]);
+
+    return view('fe.register', compact('products', 'rekenings'));
+});
+
+Route::post('/customer/transaction/create', [CustomerTransactionController::class, 'createTransaction']);
+
+Route::get('/api/payment-data', function () {
+    $products = Product::where('status', 1)->distinct()->get();
+    $rekenings = Rekening::where('bank', '!=', ['QRIS'])->where('is_active', 1)->distinct()->get();
+
+    return response()->json([
+        'products' => $products,
+        'rekenings' => $rekenings,
+    ]);
 });
 // Routes for login and logout
 Route::middleware(['guest'])->group(function () {
@@ -145,6 +170,8 @@ Route::get('/api/revenue-data', action: function (Request $request) {
         'previousYearData' => array_values($formattedPreviousYearData),
     ]);
 });
+Route::post('/upload-payment-proof', action: [PaymentController::class, 'uploadPaymentProof']);
+
 Route::get('/api/profile-report-stats', [ProfileReportController::class, 'getProfileReportStats']);
 
 
