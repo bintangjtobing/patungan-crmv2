@@ -42,4 +42,9 @@ class Product extends BaseModel
     {
         return $this->hasMany(Transaction::class, 'product_uuid', 'uuid');
     }
+    public function kredentialCustomers()
+    {
+        return $this->hasMany(KredentialCustomer::class, 'product_uuid', 'uuid');
+    }
+
 }

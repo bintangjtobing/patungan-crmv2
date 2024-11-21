@@ -13,13 +13,16 @@ use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\ProfileReportController;
 use App\Http\Controllers\FinanceReportController;
 use App\Exports\FinanceReportExport;
+use App\Models\KredentialCustomer;
 use Maatwebsite\Excel\Facades\Excel;
-
+use Illuminate\Http\Request;
 
 Route::get('/', function () {
+    return redirect('/dashboard');
+});
+Route::get('/register', function () {
     return view('fe.register');
 });
-
 // Routes for login and logout
 Route::middleware(['guest'])->group(function () {
     // Route for showing the login form
@@ -73,7 +76,75 @@ Route::get('/api/dashboard-stats', function () {
         'expenseDifference' => $expenseDifference,
     ]);
 });
+Route::get('/api/growth-chart-data', function () {
+    // Data yang akan dikirim ke chart
+    $selectedYear = request('year', now()->year); // Default tahun ini
+    $previousYear = $selectedYear - 1;
 
+    // Ambil total pendapatan tahun berjalan
+    $currentYearData = DB::table('transactions')
+        ->where('jenis_transaksi', 1) // Hanya penjualan
+        ->whereYear('created_at', $selectedYear)
+        ->sum('harga');
+
+    // Ambil total pendapatan tahun sebelumnya
+    $previousYearData = DB::table('transactions')
+        ->where('jenis_transaksi', 1) // Hanya penjualan
+        ->whereYear('created_at', $previousYear)
+        ->sum('harga');
+
+    // Hitung persentase growth
+    $growthPercentage = $previousYearData > 0
+        ? round((($currentYearData - $previousYearData) / $previousYearData) * 100, 2)
+        : 100;
+
+    return response()->json([
+        'selectedYear' => $selectedYear,
+        'previousYear' => $previousYear,
+        'growthPercentage' => $growthPercentage,
+        'currentYearTotal' => $currentYearData,
+        'previousYearTotal' => $previousYearData,
+    ]);
+})->name('api.growth-chart-data');
+
+Route::get('/api/revenue-data', action: function (Request $request) {
+    // Data tahun saat ini dan tahun sebelumnya
+    $selectedYear = $request->query('year', now()->year); // Default ke tahun ini
+    $previousYear = $selectedYear - 1;
+
+    // Fetch data for current year
+    $currentYearData = \App\Models\Transaction::selectRaw("
+            MONTH(created_at) as month,
+            SUM(harga) as total
+        ")
+        ->whereYear('created_at', $selectedYear)
+        ->groupByRaw("MONTH(created_at)")
+        ->orderByRaw("MONTH(created_at)")
+        ->pluck('total', 'month')
+        ->toArray();
+
+    // Fetch data for previous year
+    $previousYearData = \App\Models\Transaction::selectRaw("
+            MONTH(created_at) as month,
+            SUM(harga) as total
+        ")
+        ->whereYear('created_at', $previousYear)
+        ->groupByRaw("MONTH(created_at)")
+        ->orderByRaw("MONTH(created_at)")
+        ->pluck('total', 'month')
+        ->toArray();
+
+    // Fill missing months with 0
+    $formattedCurrentYearData = array_replace(array_fill(1, 12, 0), $currentYearData);
+    $formattedPreviousYearData = array_replace(array_fill(1, 12, 0), $previousYearData);
+
+    return response()->json([
+        'selectedYear' => $selectedYear,
+        'previousYear' => $previousYear,
+        'currentYearData' => array_values($formattedCurrentYearData),
+        'previousYearData' => array_values($formattedPreviousYearData),
+    ]);
+});
 Route::get('/api/profile-report-stats', [ProfileReportController::class, 'getProfileReportStats']);
 
 
@@ -83,6 +154,92 @@ Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 // Protected routes that require login
 Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', function () {
+        // Ambil data email dan produk, hitung jumlah pengguna
+        $kredentialCustomerCount = KredentialCustomer::with('product')
+        ->select('email_akses', 'product_uuid', DB::raw('COUNT(*) as user_count'))
+        ->groupBy('email_akses', 'product_uuid')
+        ->orderBy('user_count', 'DESC') // Mengurutkan berdasarkan jumlah pengguna
+        ->get();
+        $selectedYear = request('year', now()->year); // Tahun yang dipilih
+        $previousYear = $selectedYear - 1;
+
+        // Revenue untuk tahun terpilih
+        // Data untuk grafik
+        $currentYearRevenue = DB::table('transactions')
+        ->selectRaw("MONTH(created_at) as month, SUM(harga) as total")
+        ->where('jenis_transaksi', 1) // Penjualan
+        ->whereYear('created_at', $selectedYear)
+        ->groupBy('month')
+        ->orderBy('month')
+        ->pluck('total', 'month');
+
+        $previousYearRevenue = DB::table('transactions')
+            ->selectRaw("MONTH(created_at) as month, SUM(harga) as total")
+            ->where('jenis_transaksi', 1) // Penjualan
+            ->whereYear('created_at', $previousYear)
+            ->groupBy('month')
+            ->orderBy('month')
+            ->pluck('total', 'month');
+
+        // Persentase pertumbuhan
+        $currentTotal = $currentYearRevenue->sum();
+        $previousTotal = $previousYearRevenue->sum();
+
+        $growthPercentage = $previousTotal > 0
+            ? round((($currentTotal - $previousTotal) / $previousTotal) * 100, 2)
+            : ($currentTotal > 0 ? 100 : 0);
+
+        // Format data grafik untuk frontend
+        $currentYearData = array_fill(1, 12, 0);
+        $previousYearData = array_fill(1, 12, 0);
+
+        foreach ($currentYearRevenue as $month => $total) {
+            $currentYearData[$month] = $total;
+        }
+
+        foreach ($previousYearRevenue as $month => $total) {
+            $previousYearData[$month] = $total;
+        }
+        $currentMonth = now()->month; // Bulan berjalan
+        $currentYear = now()->year; // Tahun berjalan
+
+        // Total Pembelian (Payments) untuk bulan ini
+        $currentMonthPayments = DB::table('transactions')
+            ->where('jenis_transaksi', 0) // Pembelian
+            ->whereYear('created_at', $currentYear)
+            ->whereMonth('created_at', $currentMonth)
+            ->sum('harga');
+
+        // Total Pembelian (Payments) untuk bulan sebelumnya
+        $previousMonthPayments = DB::table('transactions')
+            ->where('jenis_transaksi', 0) // Pembelian
+            ->whereYear('created_at', $currentYear)
+            ->whereMonth('created_at', $currentMonth - 1)
+            ->sum('harga');
+
+        // Hitung Persentase Perubahan untuk Pembelian
+        $paymentsPercentage = $previousMonthPayments > 0
+            ? round((($currentMonthPayments - $previousMonthPayments) / $previousMonthPayments) * 100, 2)
+            : ($currentMonthPayments > 0 ? 100 : 0);
+
+        // Total Penjualan (Transactions) untuk bulan ini
+        $currentMonthTransactions = DB::table('transactions')
+            ->where('jenis_transaksi', 1) // Penjualan
+            ->whereYear('created_at', $currentYear)
+            ->whereMonth('created_at', $currentMonth)
+            ->sum('harga');
+
+        // Total Penjualan (Transactions) untuk bulan sebelumnya
+        $previousMonthTransactions = DB::table('transactions')
+            ->where('jenis_transaksi', 1) // Penjualan
+            ->whereYear('created_at', $currentYear)
+            ->whereMonth('created_at', $currentMonth - 1)
+            ->sum('harga');
+
+        // Hitung Persentase Perubahan untuk Penjualan
+        $transactionsPercentage = $previousMonthTransactions > 0
+            ? round((($currentMonthTransactions - $previousMonthTransactions) / $previousMonthTransactions) * 100, 2)
+            : ($currentMonthTransactions > 0 ? 100 : 0);
         // Statistik Order
         $orderStatistics = DB::table('transactions')
             ->join('products', 'transactions.product_uuid', '=', 'products.uuid')
@@ -144,13 +301,29 @@ Route::middleware(['auth'])->group(function () {
 
         return view('dashboard.index', compact(
             'orderStatistics',
-            'totalSales',
-            'transactions',
-            'year',
-            'growthPercentage',
-            'totalAmount',
-            'months',
-            'trend'
+        'totalSales',
+        'transactions',
+        'year',
+        'growthPercentage',
+        'totalAmount',
+        'months',
+        'trend',
+        'currentMonthPayments',
+        'paymentsPercentage',
+        'currentMonthTransactions',
+        'transactionsPercentage',
+        'currentYearRevenue',
+        'previousYearRevenue',
+        'growthPercentage',
+        'selectedYear',
+        'currentYearData',
+        'previousYearData',
+        'growthPercentage',
+        'currentTotal',
+        'previousTotal' ,
+        'selectedYear',
+        'previousYear',
+        'kredentialCustomerCount'
         ));
     })->name('dashboard');
 

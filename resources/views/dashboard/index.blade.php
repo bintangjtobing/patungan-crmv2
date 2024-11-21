@@ -9,10 +9,10 @@
                     <h5 class="card-title text-primary">Congratulations {{ Auth::user()->name }}! 🎉</h5>
                     <p class="mb-4">
                         You have done <span class="fw-bold">{{ $growthPercentage }}%</span> more sales this month.
-                        Check your new badge in your profile.
+                        Check your finance report to see details.
                     </p>
 
-                    <a href="javascript:;" class="btn btn-sm btn-outline-primary">View
+                    <a href="/finance-report" class="btn btn-sm btn-outline-primary">View
                         Finance Reports</a>
                 </div>
             </div>
@@ -86,18 +86,21 @@
                             <button class="btn btn-sm btn-outline-primary dropdown-toggle" type="button"
                                 id="growthReportId" data-bs-toggle="dropdown" aria-haspopup="true"
                                 aria-expanded="false">
-                                2022
+                                {{ $selectedYear }}
                             </button>
                             <div class="dropdown-menu dropdown-menu-end" aria-labelledby="growthReportId">
-                                <a class="dropdown-item" href="javascript:void(0);">2021</a>
-                                <a class="dropdown-item" href="javascript:void(0);">2020</a>
-                                <a class="dropdown-item" href="javascript:void(0);">2019</a>
+                                <a class="dropdown-item"
+                                    href="{{ route('dashboard', ['year' => $selectedYear - 1]) }}">{{ $selectedYear - 1
+                                    }}</a>
+                                <a class="dropdown-item" href="{{ route('dashboard', ['year' => $selectedYear]) }}">{{
+                                    $selectedYear }}</a>
+
                             </div>
                         </div>
                     </div>
                 </div>
                 <div id="growthChart"></div>
-                <div class="text-center fw-semibold pt-3 mb-2">62% Company Growth</div>
+                <div class="text-center fw-semibold pt-3 mb-2">{{ $growthPercentage }}% Growth</div>
 
                 <div class="d-flex px-xxl-4 px-lg-2 p-4 gap-xxl-3 gap-lg-1 gap-3 justify-content-between">
                     <div class="d-flex">
@@ -105,8 +108,9 @@
                             <span class="badge bg-label-primary p-2"><i class="bx bx-dollar text-primary"></i></span>
                         </div>
                         <div class="d-flex flex-column">
-                            <small>2022</small>
-                            <h6 class="mb-0">$32.5k</h6>
+                            <small>{{ $selectedYear }}</small>
+                            <h6 class="mb-0">Rp {{ number_format($currentTotal, 0, ',', '.') }}</h6>
+
                         </div>
                     </div>
                     <div class="d-flex">
@@ -114,8 +118,8 @@
                             <span class="badge bg-label-info p-2"><i class="bx bx-wallet text-info"></i></span>
                         </div>
                         <div class="d-flex flex-column">
-                            <small>2021</small>
-                            <h6 class="mb-0">$41.2k</h6>
+                            <small>{{ $previousYear }}</small>
+                            <h6 class="mb-0">Rp {{ number_format($previousTotal, 0, ',', '.') }}</h6>
                         </div>
                     </div>
                 </div>
@@ -139,15 +143,18 @@
                                 <i class="bx bx-dots-vertical-rounded"></i>
                             </button>
                             <div class="dropdown-menu dropdown-menu-end" aria-labelledby="cardOpt4">
-                                <a class="dropdown-item" href="javascript:void(0);">View
+                                <a class="dropdown-item" href="/finance-report">View
                                     More</a>
-                                <a class="dropdown-item" href="javascript:void(0);">Delete</a>
                             </div>
                         </div>
                     </div>
-                    <span class="d-block mb-1">Payments</span>
-                    <h3 class="card-title text-nowrap mb-2">$2,456</h3>
-                    <small class="text-danger fw-semibold"><i class="bx bx-down-arrow-alt"></i> -14.82%</small>
+                    <span class="d-block mb-1">Pembelian</span>
+                    <h3 class="card-title text-nowrap mb-2">Rp {{ number_format($currentMonthPayments, 0, ',', '.') }}
+                    </h3>
+                    <small class="{{ $paymentsPercentage >= 0 ? 'text-success' : 'text-danger' }} fw-semibold">
+                        <i class="bx {{ $paymentsPercentage >= 0 ? 'bx-up-arrow-alt' : 'bx-down-arrow-alt' }}"></i>
+                        {{ $paymentsPercentage }}%
+                    </small>
                 </div>
             </div>
         </div>
@@ -164,15 +171,17 @@
                                 <i class="bx bx-dots-vertical-rounded"></i>
                             </button>
                             <div class="dropdown-menu" aria-labelledby="cardOpt1">
-                                <a class="dropdown-item" href="javascript:void(0);">View
+                                <a class="dropdown-item" href="/finance-report">View
                                     More</a>
-                                <a class="dropdown-item" href="javascript:void(0);">Delete</a>
                             </div>
                         </div>
                     </div>
-                    <span class="fw-semibold d-block mb-1">Transactions</span>
-                    <h3 class="card-title mb-2">$14,857</h3>
-                    <small class="text-success fw-semibold"><i class="bx bx-up-arrow-alt"></i> +28.14%</small>
+                    <span class="fw-semibold d-block mb-1">Penjualan</span>
+                    <h3 class="card-title mb-2">Rp {{ number_format($currentMonthTransactions, 0, ',', '.') }}</h3>
+                    <small class="{{ $transactionsPercentage >= 0 ? 'text-success' : 'text-danger' }} fw-semibold">
+                        <i class="bx {{ $transactionsPercentage >= 0 ? 'bx-up-arrow-alt' : 'bx-down-arrow-alt' }}"></i>
+                        {{ $transactionsPercentage }}%
+                    </small>
                 </div>
             </div>
         </div>
@@ -210,17 +219,6 @@
                     <h5 class="m-0 me-2">Order Statistics</h5>
                     <small class="text-muted">{{ $totalSales }} Total Sales</small>
 
-                </div>
-                <div class="dropdown">
-                    <button class="btn p-0" type="button" id="orederStatistics" data-bs-toggle="dropdown"
-                        aria-haspopup="true" aria-expanded="false">
-                        <i class="bx bx-dots-vertical-rounded"></i>
-                    </button>
-                    <div class="dropdown-menu dropdown-menu-end" aria-labelledby="orederStatistics">
-                        <a class="dropdown-item" href="javascript:void(0);">Select All</a>
-                        <a class="dropdown-item" href="javascript:void(0);">Refresh</a>
-                        <a class="dropdown-item" href="javascript:void(0);">Share</a>
-                    </div>
                 </div>
             </div>
             <div class="card-body">
@@ -365,6 +363,41 @@
             </div>
         </div>
     </div>
+</div>
+<div class="row">
+    <div class="col-md-6 col-lg-4 col-xl-4 order-0 mb-4">
+        <div class="card h-auto">
+            <div class="card-header d-flex align-items-center justify-content-between pb-0">
+                <div class="card-title mb-0">
+                    <h5 class="m-0 me-2">Order Statistics</h5>
+                    <small class="text-muted">{{ $kredentialCustomerCount->count() }} Total Records</small>
+                </div>
+            </div>
+            <div class="card-body">
+                <ul class="p-0 m-0">
+                    @foreach($kredentialCustomerCount as $stat)
+                    <li class="d-flex mb-4 pb-1">
+                        <div class="avatar flex-shrink-0 me-3">
+                            <span class="avatar-initial rounded bg-label-primary">
+                                <i class="bx bx-user"></i>
+                            </span>
+                        </div>
+                        <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
+                            <div class="me-2">
+                                <h6 class="mb-0">{{ $stat->email_akses }}</h6>
+                                <small class="text-muted">{{ $stat->product ? $stat->product->nama : 'Unknown Product'
+                                    }}</small>
+                            </div>
+                            <div class="user-progress">
+                                <small class="fw-semibold">{{ $stat->user_count }} Users</small>
+                            </div>
+                        </div>
+                    </li>
+                    @endforeach
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
 
-
-    @endsection
+@endsection
