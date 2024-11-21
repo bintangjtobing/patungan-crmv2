@@ -1,0 +1,52 @@
+name: PatunganYuk CRM v0.2 Deployment
+
+on:
+  push:
+    branches:
+      - main
+      - staging
+  pull_request:
+    branches:
+      - main
+      - staging
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 🚚 Get latest code
+        uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.2"
+
+      - name: Install Dependencies
+        run: |
+          composer install --no-interaction --prefer-dist --optimize-autoloader --no-dev
+          composer dump-autoload
+          php artisan config:clear
+
+      - name: Copy Environment File
+        run: |
+          if [ "${GITHUB_REF}" == "refs/heads/staging" ]; then
+            cp .env.staging .env
+          elif [ "${GITHUB_REF}" == "refs/heads/main" ]; then
+            cp .env.production .env
+          fi
+
+      - name: Install sshpass
+        run: sudo apt-get install -y sshpass
+
+      - name: Deploy to Staging
+        if: github.ref == 'refs/heads/staging'
+        run: |
+          sshpass -p 'LibrA21101998' rsync -avz --delete -e "ssh -o StrictHostKeyChecking=no" ./ patunganyuk@153.92.5.213:/home/patunganyuk/staging.patunganyuk.com/
+          sshpass -p 'LibrA21101998' ssh -o StrictHostKeyChecking=no patunganyuk@153.92.5.213 'cd /home/patunganyuk/staging.patunganyuk.com && php artisan key:generate --ansi && php artisan migrate --force && php artisan optimize:clear && php artisan storage:link && php artisan config:clear'
+
+      - name: Deploy to Production
+        if: github.ref == 'refs/heads/main'
+        run: |
+          sshpass -p 'LibrA21101998' rsync -avz --delete -e "ssh -o StrictHostKeyChecking=no" ./ patunganyuk@153.92.5.213:/home/patunganyuk/app.patunganyuk.com/
+          sshpass -p 'LibrA21101998' ssh -o StrictHostKeyChecking=no patunganyuk@153.92.5.213 'cd /home/patunganyuk/app.patunganyuk.com && php artisan key:generate --ansi && php artisan migrate --force && php artisan optimize:clear && php artisan storage:link && php artisan config:clear'
