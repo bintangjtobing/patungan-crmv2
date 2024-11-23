@@ -22,9 +22,9 @@ class TransactionObserver
         // Define the message body for different types of transactions
         $messageBody = $transaction->jenis_transaksi == 1 ?
             "Halo " . $user->name . ",\n\n" .
-            "Transaksi penjualan untuk produk " . $transaction->product->nama . " telah berhasil dilakukan.\n\n" .
-            "Detail Transaksi:\n" .
-            "Jumlah: " . $transaction->jumlah . "\n" .
+            "Transaksi pembelian untuk produk " . $transaction->product->nama . " telah berhasil dilakukan.\n\n" .
+            "*Detail Transaksi*" .
+            "Jumlah: " . $transaction->jumlah ." Bulan". "\n" .
             "Harga Total: Rp " . number_format($transaction->harga, 0, ',', '.') . "\n\n" :
             "Halo " . $user->name . ",\n\n" .
             "Transaksi pembelian dari supplier " . $transaction->supplier->name . " telah berhasil dilakukan.\n\n" .
