@@ -33,7 +33,7 @@ class TransactionUpdated extends Mailable
             view: 'emails.transactionUpdated',
             with: [
                 'customerName' => $this->transaction->user->name,
-                'transactionType' => $this->transaction->jenis_transaksi == 1 ? 'Penjualan' : 'Pembelian',
+                'transactionType' => $this->transaction->jenis_transaksi == 1 ? 'Pembelian' : 'Penjualan',
                 'productOrSupplier' => $this->transaction->jenis_transaksi == 1 ?
                                        $this->transaction->product->nama :
                                        $this->transaction->supplier->name,

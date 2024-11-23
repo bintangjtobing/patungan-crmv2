@@ -23,7 +23,7 @@ class TransactionObserver
         $messageBody = $transaction->jenis_transaksi == 1 ?
             "Halo " . $user->name . ",\n\n" .
             "Transaksi pembelian untuk produk " . $transaction->product->nama . " telah berhasil dilakukan.\n\n" .
-            "*Detail Transaksi*" .
+            "*Detail Transaksi*" . ",\n\n" .
             "Jumlah: " . $transaction->jumlah ." Bulan". "\n" .
             "Harga Total: Rp " . number_format($transaction->harga, 0, ',', '.') . "\n\n" :
             "Halo " . $user->name . ",\n\n" .

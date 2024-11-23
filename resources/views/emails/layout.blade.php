@@ -32,9 +32,6 @@
                     style="background-color: #126DFF; color: white; padding: 10px 20px; border-radius: 25px; text-decoration: none; font-size: 16px;">Kunjungi
                     Situs Kami</a>
             </div>
-            <a href="https://www.patunganyukidn.com/terms"
-                style="font-size: 10px; text-decoration: none; text-align: center; display: block;"><i>S&K
-                    berlaku</i></a>
 
             <p>Lebih hemat menggunakan PatunganYuk IDN!<br>Salam,<br><br><br>Tim PatunganYuk IDN</p>
         </div>
@@ -66,11 +63,12 @@
                 </div>
             </div>
 
-            <p class="disclaimer"
-                style="text-align: justify; font-size: 11px; color: #333; margin-bottom: 15px; margin-top: 30px; line-height: 14px;">
-                PatunganYuk IDN adalah platform yang memfasilitasi kerja sama investasi. Kami berkomitmen untuk
-                memberikan layanan terbaik dan memastikan keamanan transaksi Anda. Kunjungi situs kami untuk informasi
-                lebih lanjut.
+            <p class="disclaimer" style="text-align: center; font-size: 12px; color: #666; line-height: 1.5;">
+                <strong>PatunganYuk IDN</strong> adalah platform online yang memungkinkan Anda untuk berbagi biaya
+                layanan streaming favorit Anda seperti Netflix, Spotify, Disney+, dan banyak lagi. Dengan
+                <strong>PatunganYuk IDN</strong>, menikmati hiburan premium menjadi lebih terjangkau dan menyenangkan.
+                Kunjungi <a href="https://patunganyukidn.com" style="color: #126DFF; text-decoration: none;">situs
+                    kami</a> untuk bergabung dengan komunitas dan mulai berhemat hari ini.
             </p>
             <!-- Review Link -->
             <div

@@ -7,9 +7,8 @@
 <p>Detail transaksi <strong>{{ $transactionType }}</strong> Anda telah diperbarui.</p>
 
 <div class="transaction-details">
-    <p><strong>Jenis Transaksi:</strong> {{ $transactionType }}</p>
-    <p><strong>{{ $transactionType == 'Penjualan' ? 'Produk' : 'Supplier' }}:</strong> {{ $productOrSupplier }}</p>
-    <p><strong>Jumlah:</strong> {{ $amount }}</p>
-    <p><strong>Harga Total:</strong> Rp {{ number_format($price, 0, ',', '.') }}</p>
+    <p><strong>Jenis Transaksi:</strong> {{ $transactionType }}<br><strong>{{ $transactionType == 'Penjualan' ?
+            'Supplier' : 'Produk' }}:</strong> {{ $productOrSupplier }}<br><strong>Jumlah:</strong> {{ $amount
+        }}<br><strong>Harga Total:</strong> Rp {{ number_format($price, 0, ',', '.') }}</p>
 </div>
 @endsection
