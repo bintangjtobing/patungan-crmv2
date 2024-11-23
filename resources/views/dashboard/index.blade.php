@@ -1,6 +1,7 @@
 @extends('dashboard.layout.index')
 @section('title', 'Dashboard homepage')
 @php
+if (!function_exists('formatRupiahShort')) {
 function formatRupiahShort($angka) {
 if ($angka >= 1000000000) {
 // Format ke M (Miliar)
@@ -13,6 +14,7 @@ return 'Rp ' . number_format($angka / 1000000, 1) . 'Jt';
 return 'Rp ' . number_format($angka / 1000, 1) . 'K';
 }
 return 'Rp ' . number_format($angka, 0, ',', '.');
+}
 }
 @endphp
 @section('content')
@@ -399,8 +401,8 @@ return 'Rp ' . number_format($angka, 0, ',', '.');
                         <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
                             <div class="me-2">
                                 <h6 class="mb-0">{{ $stat->email_akses }}</h6>
-                                <small class="text-muted">{{ $stat->product ? $stat->product->nama : 'Unknown Product'
-                                    }}</small>
+                                <small class="text-muted">{{ $stat->product_name ?? 'Unknown Product' }}</small>
+
                             </div>
                             <div class="user-progress">
                                 <small class="fw-semibold">{{ $stat->user_count }} Users</small>

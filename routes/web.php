@@ -182,10 +182,10 @@ Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', function () {
         // Ambil data email dan produk, hitung jumlah pengguna
-        $kredentialCustomerCount = KredentialCustomer::with('product')
-        ->select('email_akses', 'product_uuid', DB::raw('COUNT(*) as user_count'))
-        ->groupBy('email_akses', 'product_uuid')
-        ->orderBy('user_count', 'DESC') // Mengurutkan berdasarkan jumlah pengguna
+        $kredentialCustomerCount = DB::table('kredential_customers')
+        ->join('products', 'kredential_customers.product_uuid', '=', 'products.uuid')
+        ->select('kredential_customers.email_akses', 'kredential_customers.product_uuid', DB::raw('COUNT(*) as user_count'), 'products.nama as product_name')
+        ->groupBy('kredential_customers.email_akses', 'kredential_customers.product_uuid', 'products.nama')
         ->get();
         $selectedYear = request('year', now()->year); // Tahun yang dipilih
         $previousYear = $selectedYear - 1;
