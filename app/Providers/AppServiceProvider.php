@@ -5,6 +5,8 @@ namespace App\Providers;
 use Illuminate\Support\ServiceProvider;
 use App\Observers\KredentailObserver;
 use App\Models\KredentialCustomer;
+use App\Models\Transaction;
+use App\Observers\TransactionObserver;
 use Illuminate\Support\Facades\DB;
 
 class AppServiceProvider extends ServiceProvider
@@ -23,7 +25,6 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         KredentialCustomer::observe(KredentailObserver::class);
-
-        // DB::statement("SET SESSION sql_mode=(SELECT REPLACE(@@SESSION.sql_mode, 'ONLY_FULL_GROUP_BY', ''));");
+        Transaction::observe(TransactionObserver::class);
     }
 }

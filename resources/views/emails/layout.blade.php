@@ -1,109 +1,88 @@
-<!-- resources/views/emails/layout.blade.php -->
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            margin: 0;
-            padding: 0;
-            color: #333;
-        }
-        .email-container {
-            max-width: 600px;
-            margin: 40px auto;
-            background-color: #ffffff;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
-        }
-        .header {
-            background-color: #052349;
-            padding: 20px;
-            text-align: center;
-            color: #ffffff;
-        }
-        .header h1 {
-            margin: 0;
-            font-size: 24px;
-        }
-        .content {
-            padding: 20px;
-        }
-        .content h2 {
-            color: #052349;
-            font-size: 22px;
-            margin-top: 0;
-        }
-        .content p {
-            font-size: 16px;
-            line-height: 1.5;
-        }
-        .content a {
-            color: #052349;
-            text-decoration: none;
-        }
-        .content ul, .content ol {
-            margin-left: 20px;
-            padding-left: 0;
-        }
-        .highlight {
-            background-color: #e7f3ff;
-            padding: 5px 10px;
-            border-radius: 5px;
-            color: #052349;
-        }
-        .user-info {
-            background-color: #f9f9f9;
-            padding: 15px;
-            border-radius: 8px;
-            margin-top: 20px;
-        }
-        .user-info p {
-            margin: 0 0 10px;
-            font-size: 14px;
-            color: #555;
-        }
-        .footer {
-            background-color: #f4f4f4;
-            text-align: center;
-            padding: 20px;
-            font-size: 12px;
-            color: #999;
-            border-top: 1px solid #ddd;
-        }
-        .footer p {
-            margin: 0;
-        }
-        .footer a {
-            color: #052349;
-            text-decoration: none;
-        }
-        .footer .social-icons {
-            margin: 10px 0;
-        }
-        .footer .social-icons a {
-            display: inline-block;
-            margin: 0 10px;
-            color: #052349;
-        }
-        .footer .social-icons img {
-            width: 24px;
-            height: 24px;
-            vertical-align: middle;
-        }
-    </style>
+    <title>Template Email</title>
 </head>
-<body>
-    <div class="email-container">
-        @include('emails.partials.header')
-        <div class="content">
+
+<body style="font-family: 'Questrial', sans-serif; margin: 0; padding: 0; background-color: #f4f4f4;">
+
+    <div class="email-container"
+        style="max-width: 600px; margin: 15px auto; background-color: #fff; border-radius: 10px; overflow: hidden;">
+        <!-- Gambar Banner -->
+        <img src="https://res.cloudinary.com/dflafxsqp/image/upload/v1732372083/thankyou-pty_waqmlw.png" alt="Banner"
+            class="banner" style="width: 100%; height: auto;">
+
+        <!-- Konten -->
+        <div class="content" style="padding: 20px; color: #333;">
             @yield('content')
+
+            <p>Jika Anda memiliki pertanyaan atau membutuhkan bantuan lebih lanjut, jangan ragu untuk membalas email
+                ini.</p>
+            <p>Terima kasih atas kepercayaan Anda pada PatunganYuk IDN! Kami berharap transaksi ini memberikan nilai
+                tambah bagi Anda. Mohon berikan feedback Anda melalui tautan berikut: <a
+                    href="https://g.page/r/CSM658ow_9wxEBM/review">Berikan Ulasan</a> ⭐<br><br>- Tim PatunganYuk IDN</p>
+
+            <!-- Tombol Ajakan -->
+            <h4 style="text-align: center;">Kunjungi PatunganYuk IDN untuk lebih banyak tawaran!</h4>
+            <div class="cta-button" style="text-align: center; margin: 20px 0 15px 0;">
+                <a href="https://patunganyukidn.com"
+                    style="background-color: #126DFF; color: white; padding: 10px 20px; border-radius: 25px; text-decoration: none; font-size: 16px;">Kunjungi
+                    Situs Kami</a>
+            </div>
+            <a href="https://www.patunganyukidn.com/terms"
+                style="font-size: 10px; text-decoration: none; text-align: center; display: block;"><i>S&K
+                    berlaku</i></a>
+
+            <p>Lebih hemat menggunakan PatunganYuk IDN!<br>Salam,<br><br><br>Tim PatunganYuk IDN</p>
         </div>
-        @include('emails.partials.footer')
+
+        <!-- Footer -->
+        <div class="footer"
+            style="padding: 20px; text-align: left; background-color: #f4f4f4; font-size: 12px; color: #666;">
+            <div class="assistance"
+                style="font-size: 14px; text-align: center; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid #ddd;">
+                <p><strong>Butuh Bantuan?</strong><br>Untuk pertanyaan lebih lanjut, tim <a
+                        href="https://wa.me/6285195922910" style="color: #126DFF; text-decoration: none;">dukungan
+                        kami</a> siap membantu Anda!</p>
+            </div>
+
+            <div class="social-section" style="display: flex; justify-content: space-between; align-items: flex-start;">
+                <div class="social-icons" style="text-align: left;">
+                    <h4 style="color: #000; margin-bottom: 5px;">Ikuti kami di</h4>
+                    <!-- Social Media Icons Here -->
+                    <a href="https://www.facebook.com/patunganyukidn"><img
+                            src="https://res.cloudinary.com/dnsekavtx/image/upload/v1728462784/facebookblacksocialbuttoncircle_79771_hlzt9p.png"
+                            alt="Facebook" style="width: 24px; margin-right:5px;"></a>
+                    <a href="https://www.instagram.com/patunganyukidn/"><img
+                            src="https://res.cloudinary.com/dnsekavtx/image/upload/v1728462788/instagram-with-circle-icon-2048x2048-21sdb59c_rbnq9w.png"
+                            alt="Instagram" style="width: 24px; margin-right: 5px;"></a>
+                    <a href="https://wa.me/6285195922910"><img
+                            src="https://res.cloudinary.com/dnsekavtx/image/upload/v1728462785/3669725_l9zrbh.png"
+                            alt="Whatsapp" style="width: 24px; margin-left: 0; margin-right: 5px;"></a>
+
+                </div>
+            </div>
+
+            <p class="disclaimer"
+                style="text-align: justify; font-size: 11px; color: #333; margin-bottom: 15px; margin-top: 30px; line-height: 14px;">
+                PatunganYuk IDN adalah platform yang memfasilitasi kerja sama investasi. Kami berkomitmen untuk
+                memberikan layanan terbaik dan memastikan keamanan transaksi Anda. Kunjungi situs kami untuk informasi
+                lebih lanjut.
+            </p>
+            <!-- Review Link -->
+            <div
+                style="border: 1px solid #d7e2eb; padding: 10px; border-radius: 5px; text-align: center; width: 250px; background-color:#fff;">
+                <a href="https://www.trustpilot.com/review/www.duhanicapital.com" target="_blank" rel="noopener"
+                    style="text-decoration: none; font-family: Arial, sans-serif; font-size: 16px; color: #333; display: inline-block;">
+                    ⭐ Review us on
+                    <span style="color: #00b67a; font-weight: bold; font-family: Arial, sans-serif;">Google</span>
+                </a>
+            </div>
+        </div>
     </div>
 </body>
+
 </html>

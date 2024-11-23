@@ -137,25 +137,21 @@ Route::get('/api/revenue-data', action: function (Request $request) {
     $selectedYear = $request->query('year', now()->year); // Default ke tahun ini
     $previousYear = $selectedYear - 1;
 
-    // Fetch data for current year
-    $currentYearData = \App\Models\Transaction::selectRaw("
-            MONTH(created_at) as month,
-            SUM(harga) as total
-        ")
+    // Fetch data for current year using DB Query
+    $currentYearData = DB::table('transactions')
+        ->selectRaw("MONTH(created_at) as month, SUM(harga) as total")
         ->whereYear('created_at', $selectedYear)
-        ->groupByRaw("MONTH(created_at)")
-        ->orderByRaw("MONTH(created_at)")
+        ->groupBy(DB::raw("MONTH(created_at)"))
+        ->orderBy(DB::raw("MONTH(created_at)"))
         ->pluck('total', 'month')
         ->toArray();
 
-    // Fetch data for previous year
-    $previousYearData = \App\Models\Transaction::selectRaw("
-            MONTH(created_at) as month,
-            SUM(harga) as total
-        ")
+    // Fetch data for previous year using DB Query
+    $previousYearData = DB::table('transactions')
+        ->selectRaw("MONTH(created_at) as month, SUM(harga) as total")
         ->whereYear('created_at', $previousYear)
-        ->groupByRaw("MONTH(created_at)")
-        ->orderByRaw("MONTH(created_at)")
+        ->groupBy(DB::raw("MONTH(created_at)"))
+        ->orderBy(DB::raw("MONTH(created_at)"))
         ->pluck('total', 'month')
         ->toArray();
 
