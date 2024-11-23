@@ -9,6 +9,6 @@
 <div class="transaction-details">
     <p><strong>Jenis Transaksi:</strong> {{ $transactionType }}<br><strong>{{ $transactionType == 'Penjualan' ?
             'Supplier' : 'Produk' }}:</strong> {{ $productOrSupplier }}<br><strong>Jumlah:</strong> {{ $amount
-        }}<br><strong>Harga Total:</strong> Rp {{ number_format($price, 0, ',', '.') }}</p>
+        }} Bulan<br><strong>Harga Total:</strong> Rp {{ number_format($price, 0, ',', '.') }}</p>
 </div>
 @endsection
