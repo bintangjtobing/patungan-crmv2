@@ -46,8 +46,8 @@ class TransactionObserver
         $sendMessage = new SendMessage();
 
         $messageBody = "Halo " . $user->name . ",\n\n" .
-            "Detail transaksi kamu telah diperbarui.\n\n" .
-            "Kunjungi dashboard kamu untuk melihat informasi terbaru.\n\n" .
+            "Pembayaran kamu telah dikonfirmasi dan diverifikasi.\n\n" .
+            "Anda akan menerima kredensial login dan informasi detail produk Anda dalam waktu kurang dari 30 menit.\n\n" .
             "Terima kasih telah menggunakan layanan kami.";
 
         $sendMessage->send($user->no_hp, $messageBody);
