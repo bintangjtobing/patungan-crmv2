@@ -24,6 +24,6 @@ class AppServiceProvider extends ServiceProvider
     {
         KredentialCustomer::observe(KredentailObserver::class);
 
-        DB::statement("SET SESSION sql_mode=(SELECT REPLACE(@@SESSION.sql_mode, 'ONLY_FULL_GROUP_BY', ''));");
+        // DB::statement("SET SESSION sql_mode=(SELECT REPLACE(@@SESSION.sql_mode, 'ONLY_FULL_GROUP_BY', ''));");
     }
 }
