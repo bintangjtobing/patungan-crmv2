@@ -24,7 +24,7 @@ class TransactionObserver
             "Halo " . $user->name . ",\n\n" .
             "Transaksi pembelian untuk produk " . $transaction->product->nama . " telah berhasil dilakukan.\n\n" .
             "*Detail Transaksi*" . ",\n\n" .
-            "Jumlah: " . $transaction->jumlah ." Bulan". "\n" .
+            "Jumlah: " . $transaction->jumlah ?? 0 ." Bulan". "\n" .
             "Harga Total: Rp " . number_format($transaction->harga, 0, ',', '.') . "\n\n" :
             "Halo " . $user->name . ",\n\n" .
             "Transaksi pembelian dari supplier " . $transaction->supplier->name . " telah berhasil dilakukan.\n\n" .

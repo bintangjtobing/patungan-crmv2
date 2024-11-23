@@ -73,7 +73,7 @@
             <!-- Review Link -->
             <div
                 style="border: 1px solid #d7e2eb; padding: 10px; border-radius: 5px; text-align: center; width: 250px; background-color:#fff;">
-                <a href="https://www.trustpilot.com/review/www.duhanicapital.com" target="_blank" rel="noopener"
+                <a href="https://g.page/r/CSM658ow_9wxEBM/review" target="_blank" rel="noopener"
                     style="text-decoration: none; font-family: Arial, sans-serif; font-size: 16px; color: #333; display: inline-block;">
                     ⭐ Review us on
                     <span style="color: #00b67a; font-weight: bold; font-family: Arial, sans-serif;">Google</span>

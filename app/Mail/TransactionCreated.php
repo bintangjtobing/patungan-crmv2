@@ -37,7 +37,7 @@ class TransactionCreated extends Mailable
                 'productOrSupplier' => $this->transaction->jenis_transaksi == 1 ?
                                        $this->transaction->product->nama :
                                        $this->transaction->supplier->name,
-                'amount' => $this->transaction->jumlah,
+                'amount' => $this->transaction->jumlah ?? '0',
                 'price' => $this->transaction->harga
             ]
         );
