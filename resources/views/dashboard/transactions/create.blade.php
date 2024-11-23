@@ -36,7 +36,7 @@
             <!-- Product (only visible for Penjualan) -->
             <div class="mb-3" id="product_section" style="display: none;">
                 <label for="product_uuid" class="form-label">Product</label>
-                <select name="product_uuid" id="product_uuid" class="form-select">
+                <select name="product_uuid" id="product_uuid" class="form-select" onchange="updatePrice(this)">
                     <option value="">Select a Product</option>
                     @foreach($products as $product)
                     <option value="{{ $product->uuid }}">{{ $product->nama }}</option>
@@ -90,6 +90,20 @@
         document.getElementById('amount_section').style.display = transactionType === '1' ? 'block' : 'none';
         document.getElementById('supplier_section').style.display = transactionType === '0' ? 'block' : 'none';
     });
+    function updatePrice(productSelect) {
+        var productUuid = productSelect.value;
+        if (productUuid) {
+            // Assuming you have a route 'products.price' that returns the price of a product by its UUID
+            fetch(`/products/price/${productUuid}`)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('harga').value = data.harga_jual;
+                })
+                .catch(error => console.error('Error fetching price:', error));
+        } else {
+            document.getElementById('harga').value = ''; // Clear the price field if no product is selected
+        }
+    }
 </script>
 
 @endsection

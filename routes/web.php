@@ -177,7 +177,7 @@ Route::get('/api/profile-report-stats', [ProfileReportController::class, 'getPro
 
 // Logout route available to authenticated users
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
-
+Route::get('products/price/{uuid}', [ProductController::class, 'getPriceByUuid']);
 // Protected routes that require login
 Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', function () {

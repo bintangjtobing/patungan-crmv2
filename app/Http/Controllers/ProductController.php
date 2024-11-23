@@ -114,4 +114,9 @@ class ProductController extends Controller
         notify()->success('Product deleted successfully!');
         return redirect()->route('products.index')->with('success', 'Product deleted successfully.');
     }
+    public function getPriceByUuid($uuid)
+    {
+        $product = Product::where('uuid', $uuid)->first(columns: ['harga_jual']);
+        return response()->json($product); // return the product with its price
+    }
 }
