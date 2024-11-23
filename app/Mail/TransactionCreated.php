@@ -32,6 +32,7 @@ class TransactionCreated extends Mailable
         return new Content(
             view: 'emails.transactionCreated',
             with: [
+                'customerName' => $this->transaction->user->name,
                 'transactionType' => $this->transaction->jenis_transaksi == 1 ? 'Penjualan' : 'Pembelian',
                 'productOrSupplier' => $this->transaction->jenis_transaksi == 1 ?
                                        $this->transaction->product->nama :
