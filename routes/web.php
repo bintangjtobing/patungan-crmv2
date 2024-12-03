@@ -373,33 +373,36 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('suppliers', SupplierController::class);
     Route::get('/finance-report', function () {
         // Data transaksi yang dikelompokkan berdasarkan bulan
-        $transactionsByMonth = \App\Models\Transaction::with(['product', 'user'])->selectRaw("
-            DATE_FORMAT(created_at, '%M %Y') AS month,
-            jenis_transaksi,
-            SUM(harga) AS total,
-            uuid,
-            COUNT(*) AS count,
-            created_at
-        ")
-        ->groupByRaw("DATE_FORMAT(created_at, '%Y-%m'), jenis_transaksi, created_at")
-        ->orderByRaw("DATE_FORMAT(created_at, '%Y-%m') DESC, created_at DESC")
-        ->get();
+        $transactionsByMonth = \App\Models\Transaction::with('product','supplier')
+            ->selectRaw("
+                DATE_FORMAT(created_at, '%M %Y') AS month,
+                jenis_transaksi,
+                SUM(harga) AS total,
+                uuid,
+                COUNT(*) AS count,
+                created_at
+            ")
+            ->groupByRaw("DATE_FORMAT(created_at, '%Y-%m'), jenis_transaksi, created_at, uuid")
+            ->orderByRaw("DATE_FORMAT(created_at, '%Y-%m') DESC, created_at DESC")
+            ->get();
 
-        // Hitung total penjualan, pembelian, dan keuntungan
-        $report = $transactionsByMonth->groupBy('month')->map(function ($group) {
-            $sales = $group->where('jenis_transaksi', 1)->sum('total');
-            $purchases = $group->where('jenis_transaksi', 0)->sum('total');
-            $profit = $sales - $purchases;
 
-            return [
-                'sales' => $sales,
-                'purchases' => $purchases,
-                'profit' => $profit,
-                'transactions' => $group
-            ];
-        });
+    // Hitung total penjualan, pembelian, dan keuntungan
+    $report = $transactionsByMonth->groupBy('month')->map(function ($group) {
+        $sales = $group->where('jenis_transaksi', 1)->sum('total');
+        $purchases = $group->where('jenis_transaksi', 0)->sum('total');
+        $profit = $sales - $purchases;
+
+        return [
+            'sales' => $sales,
+            'purchases' => $purchases,
+            'profit' => $profit,
+            'transactions' => $group
+        ];
+    });
 
         return view('dashboard.finance-report.index', compact('report'));
+        // return response()->json($report);
     })->name('finance-report');
     Route::get('/finance-report/export', [FinanceReportController::class, 'export'])->name('finance-report.export');
     Route::get('/finance-report/export-excel', function () {

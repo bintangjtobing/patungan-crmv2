@@ -44,7 +44,7 @@ class Transaction extends BaseModel
 
     public function product()
     {
-        return $this->belongsTo(Product::class, 'product_uuid', 'uuid');
+        return $this->belongsTo(Product::class);
     }
 
     public function user()
