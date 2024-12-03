@@ -48,6 +48,7 @@ class CustomerTransactionController extends Controller
             $transaction = Transaction::create([
                 'user_id' => $user->id,
                 'product_uuid' => $product->uuid,
+                'jumlah' => 1,
                 'harga' => $harga, // Ambil harga dari produk
                 'bukti_transaksi' => $validatedData['bukti_transaksi'],
                 'status' => 0,

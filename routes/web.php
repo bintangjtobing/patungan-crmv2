@@ -137,25 +137,21 @@ Route::get('/api/revenue-data', action: function (Request $request) {
     $selectedYear = $request->query('year', now()->year); // Default ke tahun ini
     $previousYear = $selectedYear - 1;
 
-    // Fetch data for current year
-    $currentYearData = \App\Models\Transaction::selectRaw("
-            MONTH(created_at) as month,
-            SUM(harga) as total
-        ")
+    // Fetch data for current year using DB Query
+    $currentYearData = DB::table('transactions')
+        ->selectRaw("MONTH(created_at) as month, SUM(harga) as total")
         ->whereYear('created_at', $selectedYear)
-        ->groupByRaw("MONTH(created_at)")
-        ->orderByRaw("MONTH(created_at)")
+        ->groupBy(DB::raw("MONTH(created_at)"))
+        ->orderBy(DB::raw("MONTH(created_at)"))
         ->pluck('total', 'month')
         ->toArray();
 
-    // Fetch data for previous year
-    $previousYearData = \App\Models\Transaction::selectRaw("
-            MONTH(created_at) as month,
-            SUM(harga) as total
-        ")
+    // Fetch data for previous year using DB Query
+    $previousYearData = DB::table('transactions')
+        ->selectRaw("MONTH(created_at) as month, SUM(harga) as total")
         ->whereYear('created_at', $previousYear)
-        ->groupByRaw("MONTH(created_at)")
-        ->orderByRaw("MONTH(created_at)")
+        ->groupBy(DB::raw("MONTH(created_at)"))
+        ->orderBy(DB::raw("MONTH(created_at)"))
         ->pluck('total', 'month')
         ->toArray();
 
@@ -177,15 +173,15 @@ Route::get('/api/profile-report-stats', [ProfileReportController::class, 'getPro
 
 // Logout route available to authenticated users
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
-
+Route::get('products/price/{uuid}', [ProductController::class, 'getPriceByUuid']);
 // Protected routes that require login
 Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', function () {
         // Ambil data email dan produk, hitung jumlah pengguna
-        $kredentialCustomerCount = KredentialCustomer::with('product')
-        ->select('email_akses', 'product_uuid', DB::raw('COUNT(*) as user_count'))
-        ->groupBy('email_akses', 'product_uuid')
-        ->orderBy('user_count', 'DESC') // Mengurutkan berdasarkan jumlah pengguna
+        $kredentialCustomerCount = DB::table('kredential_customers')
+        ->join('products', 'kredential_customers.product_uuid', '=', 'products.uuid')
+        ->select('kredential_customers.email_akses', 'kredential_customers.product_uuid', DB::raw('COUNT(*) as user_count'), 'products.nama as product_name')
+        ->groupBy('kredential_customers.email_akses', 'kredential_customers.product_uuid', 'products.nama')
         ->get();
         $selectedYear = request('year', now()->year); // Tahun yang dipilih
         $previousYear = $selectedYear - 1;
@@ -377,33 +373,36 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('suppliers', SupplierController::class);
     Route::get('/finance-report', function () {
         // Data transaksi yang dikelompokkan berdasarkan bulan
-        $transactionsByMonth = \App\Models\Transaction::with(['product', 'user'])->selectRaw("
-            DATE_FORMAT(created_at, '%M %Y') AS month,
-            jenis_transaksi,
-            SUM(harga) AS total,
-            uuid,
-            COUNT(*) AS count,
-            created_at
-        ")
-        ->groupByRaw("DATE_FORMAT(created_at, '%Y-%m'), jenis_transaksi, created_at")
-        ->orderByRaw("DATE_FORMAT(created_at, '%Y-%m') DESC, created_at DESC")
-        ->get();
+        $transactionsByMonth = \App\Models\Transaction::with('product','supplier')
+            ->selectRaw("
+                DATE_FORMAT(created_at, '%M %Y') AS month,
+                jenis_transaksi,
+                SUM(harga) AS total,
+                uuid,
+                COUNT(*) AS count,
+                created_at
+            ")
+            ->groupByRaw("DATE_FORMAT(created_at, '%Y-%m'), jenis_transaksi, created_at, uuid")
+            ->orderByRaw("DATE_FORMAT(created_at, '%Y-%m') DESC, created_at DESC")
+            ->get();
 
-        // Hitung total penjualan, pembelian, dan keuntungan
-        $report = $transactionsByMonth->groupBy('month')->map(function ($group) {
-            $sales = $group->where('jenis_transaksi', 1)->sum('total');
-            $purchases = $group->where('jenis_transaksi', 0)->sum('total');
-            $profit = $sales - $purchases;
 
-            return [
-                'sales' => $sales,
-                'purchases' => $purchases,
-                'profit' => $profit,
-                'transactions' => $group
-            ];
-        });
+    // Hitung total penjualan, pembelian, dan keuntungan
+    $report = $transactionsByMonth->groupBy('month')->map(function ($group) {
+        $sales = $group->where('jenis_transaksi', 1)->sum('total');
+        $purchases = $group->where('jenis_transaksi', 0)->sum('total');
+        $profit = $sales - $purchases;
+
+        return [
+            'sales' => $sales,
+            'purchases' => $purchases,
+            'profit' => $profit,
+            'transactions' => $group
+        ];
+    });
 
         return view('dashboard.finance-report.index', compact('report'));
+        // return response()->json($report);
     })->name('finance-report');
     Route::get('/finance-report/export', [FinanceReportController::class, 'export'])->name('finance-report.export');
     Route::get('/finance-report/export-excel', function () {

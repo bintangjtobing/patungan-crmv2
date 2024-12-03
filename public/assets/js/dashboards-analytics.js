@@ -22,7 +22,7 @@
 
             if (totalRevenueChartEl) {
                 // Fetch data from the API
-                fetch("/api/revenue-data?year=2024") // Replace 2024 with the desired year dynamically if needed
+                fetch("/api/revenue-data") // Replace 2024 with the desired year dynamically if needed
                     .then((response) => response.json())
                     .then((data) => {
                         // Options for the chart

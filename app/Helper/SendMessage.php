@@ -17,7 +17,7 @@ class SendMessage
 
     public function send($phone, $message)
     {
-        $message .= "\n\nJika anda memiliki pertanyaan atau membutuhkan bantuan lebih lanjut, jangan ragu untuk membalas chat ini\n\nTerima kasih atas kepercayaan Anda pada PatunganYuk IDN! Feedback Anda sangat berarti bagi kami untuk terus meningkatkan kualitas layanan kami dan memberikan pengalaman patungan yang lebih baik untuk semua pengguna. Jangan lupa bagikan pendapat Anda setelah satu minggu melalui tautan berikut: https://g.page/r/CSM658ow_9wxEBM/review";
+        $message .= "\n\nJika Anda butuh bantuan, silakan balas pesan ini.\n\nTerima kasih telah mempercayai PatunganYuk IDN! Kami menghargai masukan Anda untuk meningkatkan layanan kami. Beri kami ulasan di: https://g.page/r/CSM658ow_9wxEBM/review";
 
         return $this->sendMessage($phone, $message);
     }
