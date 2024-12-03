@@ -24,6 +24,9 @@ use App\Http\Controllers\CustomerTransactionController;
 Route::get('/', function () {
     return redirect('/dashboard');
 });
+Route::get('/user/register', function(){
+    return redirect('/register');
+});
 Route::get('/register', function () {
     $products = Product::where('status', 1)->distinct()->get();
     $rekenings = Rekening::where('bank', '!=', 'QRIS')->where('is_active', 1)->distinct()->get();
