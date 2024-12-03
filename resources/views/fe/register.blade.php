@@ -34,8 +34,9 @@
         }
     </script>
     <!-- Open Graph Meta Tags -->
-    <meta property="og:title" content="">
-    <meta property="og:description" content="">
+    <meta property="og:title" content="Gabung bersama temanPatungan! - PatunganYukIDN">
+    <meta property="og:description"
+        content="PatunganYuk! adalah platform online yang memudahkan Anda mengelola data pelanggan, transaksi, dan reminder pembayaran, sekaligus berbagi biaya layanan streaming seperti Netflix, Spotify, Disney+, dan lainnya. Hemat uang sambil menikmati akses premium bersama teman atau pengguna lain.">
     <meta property="og:image"
         content="https://res.cloudinary.com/boxity-id/image/upload/q_65/v1723832781/cover_wa_tsgukx.png">
     <meta property="og:url" content="https://app.patunganyuk.com/">
@@ -43,15 +44,16 @@
 
     <!-- Twitter Card Meta Tags -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="">
-    <meta name="twitter:description" content="">
+    <meta name="twitter:title" content="Gabung bersama temanPatungan! - PatunganYukIDN">
+    <meta name="twitter:description"
+        content="PatunganYuk! adalah platform online yang memudahkan Anda mengelola data pelanggan, transaksi, dan reminder pembayaran, sekaligus berbagi biaya layanan streaming seperti Netflix, Spotify, Disney+, dan lainnya. Hemat uang sambil menikmati akses premium bersama teman atau pengguna lain.">
     <meta name="twitter:image"
         content="https://res.cloudinary.com/boxity-id/image/upload/q_65/v1723832781/cover_wa_tsgukx.png">
     <link rel="alternate" href="https://app.patunganyuk.com/" hreflang="en">
     <meta name="twitter:site" content="@patunganyukidn">
     <meta name="facebook-domain-verification" content="vj8wf7ntoogonkispxmoznqie1a0zm" />
     <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-xxxxxxxxx"></script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7WDXGYH5NZ"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
 
@@ -60,7 +62,7 @@
     }
     gtag('js', new Date());
 
-    gtag('config', 'G-xxxxxxxxx');
+    gtag('config', 'G-7WDXGYH5NZ');
     </script>
     <!-- Meta Pixel Code -->
     <script>
@@ -74,12 +76,12 @@
       s.parentNode.insertBefore(t,s)
     }(window, document,'script',
     'https://connect.facebook.net/en_US/fbevents.js');
-    fbq('init', 'xxxxxxxxx');
-    fbq('track', 'PageView');
+    fbq('init', '473988542365157');
+    fbq('track', 'UserRegister');
     </script>
     <noscript>
         <img height="1" width="1" style="display:none"
-            src="https://www.facebook.com/tr?id=xxxxxxxxx&ev=PageView&noscript=1" />
+            src="https://www.facebook.com/tr?id=473988542365157&ev=PageView&noscript=1" />
     </noscript>
     <!-- End Meta Pixel Code -->
     <!-- Clarity Microsoft Project -->
