@@ -21,7 +21,7 @@ class TransactionObserver
 
         // Define the message body for different types of transactions
         $messageBody = $transaction->jenis_transaksi == 1 ?
-            "Halo " . $user->name . ",\n\n" .
+            "Halo kak" . $user->name . ",\n\n" .
             "Transaksi pembelian untuk produk " . $transaction->product->nama . " telah berhasil dilakukan.\n\n" .
             "*Detail Transaksi*" . ",\n\n" .
             "Jumlah: " . $transaction->jumlah ." Bulan". "\n" .
@@ -45,7 +45,7 @@ class TransactionObserver
         $user = $transaction->user;
         $sendMessage = new SendMessage();
 
-        $messageBody = "Halo " . $user->name . ",\n\n" .
+        $messageBody = "Halo kak" . $user->name . ",\n\n" .
             "Pembayaran kamu telah dikonfirmasi dan diverifikasi.\n\n" .
             "Anda akan menerima kredensial login dan informasi detail produk Anda dalam waktu kurang dari 30 menit.\n\n" .
             "Terima kasih telah menggunakan layanan kami.";
@@ -64,7 +64,7 @@ class TransactionObserver
         $user = $transaction->user;
         $sendMessage = new SendMessage();
 
-        $messageBody = "Halo " . $user->name . ",\n\n" .
+        $messageBody = "Halo kak" . $user->name . ",\n\n" .
             "Transaksi kamu telah dihapus dari sistem kami.\n\n" .
             "Jika ini adalah kesalahan, silakan hubungi dukungan kami.\n\n" .
             "Terima kasih telah menggunakan layanan kami.";

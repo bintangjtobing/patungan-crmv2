@@ -91,6 +91,7 @@ class TransactionController extends Controller
         } else {
             $data['user_id'] = auth()->id();
             $data['supplier_uuid'] = $request->supplier_uuid;
+            $data['product_uuid'] = 0;
             $data['status'] = 1;
         }
 
