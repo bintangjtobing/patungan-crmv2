@@ -17,7 +17,7 @@ class SendMessage
 
     public function send($phone, $message)
     {
-        $message .= "\n\nJika Anda butuh bantuan, silakan balas pesan ini.\n\nTerima kasih telah mempercayai PatunganYuk IDN! Kami menghargai masukan Anda untuk meningkatkan layanan kami. Beri kami ulasan di: https://g.page/r/CSM658ow_9wxEBM/review";
+        $message .= "\n\nJika Anda butuh bantuan, silakan balas pesan ini.\n\nTerima kasih telah mempercayai PatunganYuk IDN! Kami menghargai masukan Anda di https://g.page/r/CSM658ow_9wxEBM/review untuk meningkatkan layanan kami. Jika berkenan, silahkan follow instagram kami untuk mendapatkan segala berita update dari kami di https://short.patunganyuk.com/follow-ig-patungan";
 
         return $this->sendMessage($phone, $message);
     }
@@ -44,7 +44,8 @@ class SendMessage
             CURLOPT_POSTFIELDS => array(
                 'target' => $phone,
                 'message' => $message,
-                'countryCode' => '62', // Sesuaikan dengan kode negara yang sesuai
+                'countryCode' => '62',
+                'preview'=>'false', // Sesuaikan dengan kode negara yang sesuai
             ),
             CURLOPT_HTTPHEADER => array(
                 'Authorization: ' . $this->apiToken,

@@ -28,7 +28,7 @@
           "logo": "https://res.cloudinary.com/boxity-id/image/upload/v1720974567/4_ligzdg.png",
           "contactPoint": {
             "@type": "ContactPoint",
-            "telephone": "+62 819 1588 1569",
+            "telephone": "+62 85195922910",
             "contactType": "customer service"
           }
         }
