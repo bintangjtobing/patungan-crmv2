@@ -11,27 +11,26 @@ use App\Mail\KredentialCustomerDelete;
 
 class KredentailObserver
 {
-    /**
-     * Handle the KredentialCustomer "created" event.
-     */
     public function created(KredentialCustomer $kredentialCustomer): void
     {
         $user = $kredentialCustomer->user;
         $sendMessage = new SendMessage();
-
+        // Pisahkan PIN dan Password dari data dinamis
+        list($pin, $password) = explode(' / ', $kredentialCustomer->pin);
         // send message via wa
 
         $sendMessage->send(
             $user->no_hp,
-            'Halo kak ' . $user->name . ',' . "\n\n" .
-                'Selamat! Akses kamu untuk produk ' . $kredentialCustomer->product->nama . ' telah berhasil dibuat.' . "\n\n" .
-                'Detail akses:' . "\n" .
-                'Email: ' . $kredentialCustomer->email_akses . "\n" .
-                'Profil: ' . $kredentialCustomer->profil_akes . "\n" .
-                'PIN / Password: ' . $kredentialCustomer->pin . "\n\n" .
-                'Terima kasih telah menggunakan layanan kami.'
+            '🎉 Hi Kak *' . $user->name . '*,' . "\n\n" .
+            'Yeay! Akses buat produk *' . $kredentialCustomer->product->nama . '* udah jadi nih! 🚀' . "\n\n" .
+            '✨ *Detail aksesnya:*' . "\n" .
+            '📋 *Profil*: ' . $kredentialCustomer->profil_akes . "\n" .
+            '📧 *Email*: ' . $kredentialCustomer->email_akses . "\n" .
+            '🔑 *PIN*: ' . $pin . "\n" .
+            '🔒 *Password*: ' . $password . "\n\n" .
+            'Terima kasih udah pake layanan kami ya! 🫶' . "\n\n" .
+            'Selamat mencoba dan semoga lancar! 🌟'
         );
-
 
         // Send email to the user when a credential is created
         Mail::to($user->email)->send(new KredentialCustomers($kredentialCustomer));
@@ -43,22 +42,26 @@ class KredentailObserver
     public function updated(KredentialCustomer $kredentialCustomer): void
     {
         $user = $kredentialCustomer->user;
-
         $sendMessage = new SendMessage();
+
+        // Pisahkan PIN dan Password dari data dinamis
+        list($pin, $password) = explode(' / ', $kredentialCustomer->pin);
 
         $sendMessage->send(
             $user->no_hp,
-            'Halo kak ' . $user->name . ',' . "\n\n" .
-                'Akses kamu untuk produk ' . $kredentialCustomer->product->nama . ' telah diperbarui.' . "\n\n" .
-                'Detail akses:' . "\n" .
-                'Email: ' . $kredentialCustomer->email_akses . "\n" .
-                'Profil: ' . $kredentialCustomer->profil_akes . "\n" .
-                'PIN / Password: ' . $kredentialCustomer->pin . "\n\n" .
-                'Terima kasih telah menggunakan layanan kami.'
+            '🔄 Hi Kak *' . $user->name . '*,' . "\n\n" .
+            'Info nih, akses kamu buat produk *' . $kredentialCustomer->product->nama . '* udah di-update ya! 🛠️' . "\n\n" .
+            '✨ *Detail terbaru:*' . "\n" .
+            '📋 *Profil*: ' . $kredentialCustomer->profil_akes . "\n" .
+            '📧 *Email*: ' . $kredentialCustomer->email_akses . "\n" .
+            '🔑 *PIN*: ' . $pin . "\n" .
+            '🔒 *Password*: ' . $password . "\n\n" .
+            'Makasih ya udah terus pake layanan kami! 💙' . "\n" .
+            'Semoga lancar terus! 🚀'
         );
 
-         // Send email to the user when a credential is updated
-         Mail::to($user->email)->send(new KredentialCustomersUpdate($kredentialCustomer));
+        // Send email to the user when a credential is updated
+        Mail::to($user->email)->send(new KredentialCustomersUpdate($kredentialCustomer));
     }
 
     /**
@@ -67,22 +70,25 @@ class KredentailObserver
     public function deleted(KredentialCustomer $kredentialCustomer): void
     {
         $user = $kredentialCustomer->user;
-
         $sendMessage = new SendMessage();
+        // Pisahkan PIN dan Password dari data dinamis
+        list($pin, $password) = explode(' / ', $kredentialCustomer->pin);
 
         $sendMessage->send(
             $user->no_hp,
-            'Halo kak ' . $user->name . ',' . "\n\n" .
-                'Akses kamu untuk produk ' . $kredentialCustomer->product->nama . ' telah di hapus.' . "\n\n" .
-                'Detail akses:' . "\n" .
-                'Email: ' . $kredentialCustomer->email_akses . "\n" .
-                'Profil: ' . $kredentialCustomer->profil_akes . "\n" .
-                'PIN / Password: ' . $kredentialCustomer->pin . "\n\n" .
-                'Terima kasih telah menggunakan layanan kami.'
+            '❌ Hi Kak *' . $user->name . '*,' . "\n\n" .
+            'Akses kamu buat produk *' . $kredentialCustomer->product->nama . '* udah dihapus ya. 🗑️' . "\n\n" .
+            '✨ *Detail sebelumnya:*' . "\n" .
+            '📋 *Profil*: ' . $kredentialCustomer->profil_akes . "\n" .
+            '📧 *Email*: ' . $kredentialCustomer->email_akses . "\n" .
+            '🔑 *PIN*: ' . $pin . "\n" .
+            '🔒 *Password*: ' . $password . "\n\n" .
+            'Kalau butuh bantuan atau mau aktifin lagi, kabarin aja ya! 🙏' . "\n" .
+            'Terima kasih banyak sudah bersama kami. 💙'
         );
 
-         // Send email to the user when a credential is updated
-         Mail::to($user->email)->send(new KredentialCustomerDelete($kredentialCustomer));
+        // Send email to the user when a credential is deleted
+        Mail::to($user->email)->send(new KredentialCustomerDelete($kredentialCustomer));
     }
 
     /**
