@@ -19,6 +19,7 @@ use App\Models\Product;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Http\Request;
 use App\Models\Rekening;
+use App\Models\Transaction;
 use App\Http\Controllers\CustomerTransactionController;
 
 Route::get('/', function () {
@@ -363,6 +364,35 @@ Route::middleware(['auth'])->group(function () {
 
     // Route for marking a transaction as paid
     Route::patch('/transactions/{transaction}/mark-paid', [TransactionController::class, 'markAsPaid'])->name('transactions.markPaid');
+
+    Route::get('/expiry-transactions', function () {
+        // Filter transaksi near expiry langsung di database
+        $transactions = Transaction::with(['user', 'product', 'supplier'])
+            ->get()
+            ->filter(function ($transaction) {
+                return $transaction->expiration_status == 'near_expiry';
+            });
+
+        // Buat array untuk transaksi yang valid
+        $filteredTransactions = [];
+        foreach ($transactions as $transaction) {
+            $latestTransaction = Transaction::where('user_id', $transaction->user_id)
+                ->where('jenis_transaksi', 1) // Penjualan
+                ->where('status', 1) // Paid
+                ->whereNotNull('bukti_transaksi') // Bukti transaksi ada
+                ->whereDate('tanggal_waktu_transaksi_selesai', '>', $transaction->expiration_date)
+                ->first();
+
+            // Tambahkan transaksi jika tidak ada transaksi terbaru
+            if (!$latestTransaction) {
+                $filteredTransactions[] = $transaction;
+            }
+        }
+
+        return view('dashboard.transactions.exp', [
+            'filteredTransactions' => $filteredTransactions
+        ]);
+    })->name('transactions.exp');
 
     Route::resource('products', ProductController::class);
     Route::resource('kredential_customers', KredentialCustomerController::class);

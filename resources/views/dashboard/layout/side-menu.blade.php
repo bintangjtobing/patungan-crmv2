@@ -126,6 +126,12 @@
                 <div data-i18n="Kredential Customers">Kredential Customers</div>
             </a>
         </li>
+        <li class="menu-item {{ Request::is('/expiry-transactions') ? 'active' : '' }}">
+            <a href="{{ route('transactions.exp') }}" class="menu-link">
+                <i class="menu-icon tf-icons bx bx-timer"></i>
+                <div data-i18n="Near Expiry Transactions">Near Expiry data</div>
+            </a>
+        </li>
         <!-- Finance Report -->
         <li class="menu-item {{ Request::is('finance-report') ? 'active' : '' }}">
             <a href="/finance-report" class="menu-link">
