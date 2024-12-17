@@ -74,8 +74,11 @@
 
                     <!-- Actions -->
                     <td>
-                        <a href="{{ route('transactions.edit', $transaction->id) }}"
-                            class="btn btn-sm btn-primary">Edit</a>
+                        <form action="{{ route('transactions.sendReminder', $transaction->id) }}" method="POST"
+                            class="d-inline">
+                            @csrf
+                            <button type="submit" class="btn btn-sm btn-info">Send Reminder</button>
+                        </form>
                     </td>
                 </tr>
                 @endforeach
