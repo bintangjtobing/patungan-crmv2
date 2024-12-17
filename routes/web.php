@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\ProfileReportController;
 use App\Http\Controllers\FinanceReportController;
 use App\Exports\FinanceReportExport;
+use App\Helper\SendMessage;
 use App\Http\Controllers\PaymentController;
 use App\Models\KredentialCustomer;
 use App\Models\Product;
@@ -393,7 +394,25 @@ Route::middleware(['auth'])->group(function () {
             'filteredTransactions' => $filteredTransactions
         ]);
     })->name('transactions.exp');
+    Route::post('/expiry-transactions/send-reminder/{id}', function ($id) {
+        $transaction = Transaction::with(['user', 'product'])->findOrFail($id);
+        $sendMessage = new SendMessage();
 
+        $message = "✨ *Reminder Pembayaran* ✨\n\n"
+        . "Halo kak {$transaction->user->name}👋\n"
+        . "Produk: *{$transaction->product->nama}*\n"
+        . "Berakhir: *{$transaction->expiration_date->format('d M Y')}*\n\n"
+        . "Segera perpanjang untuk 1 bulan berikutnya (*" . now()->format('F Y') . " - " . now()->addMonth()->format('F Y') . "*) dengan nominal *Rp " . number_format($transaction->harga, 0, ',', '.') . "*.\n\n"
+        . "💳 *Transfer ke:*\n"
+        . "- Dana/OVO: 081262845980\n"
+        . "- BCA: 3831246616\n"
+        . "- QRIS: https://short.patunganyuk.com/qris\n\n"
+        . "✨ Konfirmasi / kirim bukti pembayaran agar segera kami proses ya! Terima kasih. 🙏";
+
+        $sendMessage->send($transaction->user->no_hp, $message);
+
+        return redirect()->back()->with('success', 'Reminder successfully sent to WhatsApp.');
+    })->name('transactions.sendReminder');
     Route::resource('products', ProductController::class);
     Route::resource('kredential_customers', KredentialCustomerController::class);
 
