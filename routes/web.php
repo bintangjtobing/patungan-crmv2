@@ -381,7 +381,7 @@ Route::middleware(['auth'])->group(function () {
                 ->where('jenis_transaksi', 1) // Penjualan
                 ->where('status', 1) // Paid
                 ->whereNotNull('bukti_transaksi') // Bukti transaksi ada
-                ->whereDate('tanggal_waktu_transaksi_selesai', '>', $transaction->expiration_date)
+                ->whereDate('tanggal_waktu_transaksi_selesai', '>=', $transaction->expiration_date)
                 ->first();
 
             // Tambahkan transaksi jika tidak ada transaksi terbaru
