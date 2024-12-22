@@ -479,10 +479,10 @@
                         },
                     ],
                     chart: {
-                        height: 430,
+                        height: 330,
                         type: "area",
                         toolbar: {
-                            show: true,
+                            show: false,
                         },
                     },
                     xaxis: {
