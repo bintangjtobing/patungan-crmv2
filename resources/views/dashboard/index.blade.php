@@ -26,7 +26,10 @@ return 'Rp ' . number_format($angka, 0, ',', '.');
                     <h5 class="card-title text-primary">Congratulations {{ Auth::user()->name }}! 🎉</h5>
                     <p class="mb-4">
                         You have done <span class="fw-bold">{{ $growthPercentage }}%</span> more sales this month.
-                        Check your finance report to see details.
+                        Check your finance report to see details.<br />
+                        Currently, there are <span class="fw-bold">{{ $totalUsers }}</span> users in total, and
+                        <span class="fw-bold">{{ $inactiveUsers }}</span> users are no longer subscribed.
+                        <span class="fw-bold">{{ $retentionPercentage }}%</span> of users are still subscribed.
                     </p>
 
                     <a href="/finance-report" class="btn btn-sm btn-outline-primary">View
@@ -281,17 +284,6 @@ return 'Rp ' . number_format($angka, 0, ',', '.');
     <!-- Expense Overview -->
     <div class="col-md-6 col-lg-4 order-1 mb-4">
         <div class="card h-auto">
-            <div class="card-header">
-                <ul class="nav nav-pills" role="tablist">
-                    <li class="nav-item">
-                        <button type="button" class="nav-link active" role="tab" data-bs-toggle="tab"
-                            data-bs-target="#navs-tabs-line-card-income" aria-controls="navs-tabs-line-card-income"
-                            aria-selected="true">
-                            Income
-                        </button>
-                    </li>
-                </ul>
-            </div>
             <div class="card-body px-0">
                 <div class="tab-content p-0">
                     <div class="tab-pane fade show active" id="navs-tabs-line-card-income" role="tabpanel">
@@ -310,7 +302,7 @@ return 'Rp ' . number_format($angka, 0, ',', '.');
                             </div>
                         </div>
                         <div id="incomeChart"></div>
-                        <div class="d-flex justify-content-center pt-4 gap-2">
+                        <div class="d-flex justify-content-center pt-4 gap-1">
                             <div id="expensesOfWeek"></div>
                         </div>
                     </div>
@@ -379,9 +371,7 @@ return 'Rp ' . number_format($angka, 0, ',', '.');
             </div>
         </div>
     </div>
-</div>
-<div class="row">
-    <div class="col-md-6 col-lg-4 col-xl-4 order-0 mb-4">
+    <div class="col-md-6 col-lg-4 order-3 mb-4">
         <div class="card h-auto">
             <div class="card-header d-flex align-items-center justify-content-between pb-0">
                 <div class="card-title mb-0">

@@ -21,6 +21,7 @@ use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Http\Request;
 use App\Models\Rekening;
 use App\Models\Transaction;
+use App\Models\User;
 use App\Http\Controllers\CustomerTransactionController;
 
 Route::get('/', function () {
@@ -290,7 +291,7 @@ Route::middleware(['auth'])->group(function () {
         // Transaksi Terbaru
         $transactions = \App\Models\Transaction::with(['user', 'product', 'supplier'])
             ->orderBy('created_at', 'desc')
-            ->take(6)
+            ->take(5)
             ->get();
 
         // Data Profile Report
@@ -326,6 +327,17 @@ Route::middleware(['auth'])->group(function () {
         // Format data untuk Profile Report
         $months = $incomeTrend->isNotEmpty() ? $incomeTrend->pluck('month')->toArray() : [];
         $trend = $incomeTrend->isNotEmpty() ? $incomeTrend->pluck('total')->toArray() : [];
+        // Total users
+        $totalUsers = User::count();
+
+        // Users with active subscriptions (have credentials)
+        $activeUsers = KredentialCustomer::distinct('user_id')->count('user_id');
+
+        // Users without subscriptions (do not have credentials)
+        $inactiveUsers = $totalUsers - $activeUsers;
+
+        // Percentage of users still subscribed
+        $retentionPercentage = $totalUsers > 0 ? round(($activeUsers / $totalUsers) * 100, 2) : 0;
 
         return view('dashboard.index', compact(
             'orderStatistics',
@@ -351,7 +363,11 @@ Route::middleware(['auth'])->group(function () {
         'previousTotal' ,
         'selectedYear',
         'previousYear',
-        'kredentialCustomerCount'
+        'kredentialCustomerCount',
+        'totalUsers',
+        'activeUsers',
+        'inactiveUsers',
+        'retentionPercentage',
         ));
     })->name('dashboard');
 
