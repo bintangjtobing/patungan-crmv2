@@ -5,80 +5,93 @@
 <h4 class="fw-bold py-3 mb-4">
     <span class="text-muted fw-light">Dashboard/</span> Users List
 </h4>
-
-<div class="card">
-    <div class="card-header d-flex align-items-center justify-content-between">
-        <h5 class="mb-0">User Details</h5>
-        <a href="{{ route('users.create') }}" class="btn btn-sm btn-primary rounded-pill">+ Add User</a>
+<!-- Statistik -->
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Total Users</h5>
+                <p class="card-text">{{ $totalUsers }}</p>
+            </div>
+        </div>
     </div>
-    <div class="table-responsive text-nowrap">
-        <table class="table table-hover">
-            <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Email</th>
-                    <th>Type</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody class="table-border-bottom-0">
-                @foreach($users as $user)
-                <tr>
-
-                    <!-- Username -->
-                    <td>@if($user->profile_picture)
-                        <img src="{{ $user->profile_picture }}" alt="Profile Picture" class="avatar avatar-xs pull-up"
-                            style="object-fit: cover;">
-                        @else
-                        <img src="https://res.cloudinary.com/dflafxsqp/image/upload/v1731524475/Man_Avatar_hxgato.gif"
-                            alt="Default Avatar" class="avatar avatar-xs pull-up">
-                        @endif
-                        <strong>{{ $user->name }}</strong>
-                        <small class="text-muted">{{ $user->username ?? 'N/A' }}</small>
-                    </td>
-                    <!-- Email -->
-                    <td>{{ $user->email }}<br><small class="text-muted"><i
-                                class="menu-icon tf-icons bx bxl-whatsapp mr-0"></i><a
-                                href="https://wa.me/{{ preg_replace('/^0/', '62', $user->no_hp) }}">{{
-                                preg_replace('/^0/',
-                                '62', $user->no_hp) }}</a></small></td>
-
-                    <!-- Type -->
-                    <td>
-                        @if($user->type == 1)
-                        <span class="badge bg-label-info">Customer</span>
-                        @else
-                        <span class="badge bg-label-primary">User</span>
-                        @endif
-                    </td>
-
-                    <!-- Actions -->
-                    <td>
-                        <div class="dropdown">
-                            <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown">
-                                <i class="bx bx-dots-vertical-rounded"></i>
-                            </button>
-                            <div class="dropdown-menu">
-                                <a class="dropdown-item" href="{{ route('users.edit', $user->id) }}">
-                                    <i class="bx bx-edit-alt me-1"></i> Edit
-                                </a>
-                                <form action="{{ route('users.destroy', $user->id) }}" method="POST"
-                                    style="display: inline;">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button class="dropdown-item" type="submit"
-                                        onclick="return confirm('Are you sure you want to delete this user?')">
-                                        <i class="bx bx-trash me-1"></i> Delete
-                                    </button>
-                                </form>
-                            </div>
-                        </div>
-                    </td>
-                </tr>
-                @endforeach
-            </tbody>
-        </table>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Active Users</h5>
+                <p class="card-text">{{ $activeUsers }}</p>
+            </div>
+        </div>
     </div>
+</div>
+<div class="row">
+    @foreach($users as $user)
+    <div class="col-lg-3 col-md-3 col-sm-6 mb-4">
+        <div class="card text-center h-100">
+            <div class="card-body">
+                <!-- Profile Picture -->
+                <div class="d-flex justify-content-center">
+                    @if($user->profile_picture)
+                    <img src="{{ $user->profile_picture }}" alt="Profile Picture" class="rounded-circle mb-3"
+                        style="width: 80px; height: 80px; object-fit: cover;">
+                    @else
+                    <img src="https://res.cloudinary.com/dflafxsqp/image/upload/v1731524475/Man_Avatar_hxgato.gif"
+                        alt="Default Avatar" class="rounded-circle mb-3"
+                        style="width: 80px; height: 80px; object-fit: cover;">
+                    @endif
+                </div>
+
+                <!-- User Name -->
+                <h6 class="card-title mb-1">{{ $user->name }}</h6>
+                <p class="text-muted small">{{ $user->username ?? 'N/A' }}</p>
+
+                <!-- Email -->
+                <p class="text-muted small mb-1">
+                    <i class="bx bx-envelope"></i> {{ $user->email }}
+                </p>
+
+                <!-- WhatsApp -->
+                <p class="text-muted small">
+                    <i class="bx bxl-whatsapp"></i>
+                    <a href="https://wa.me/{{ preg_replace('/^0/', '62', $user->no_hp) }}">
+                        {{ preg_replace('/^0/', '62', $user->no_hp) }}
+                    </a>
+                </p>
+
+                <!-- Status -->
+                <p>
+                    <span class="badge {{ $user->is_active == 'Active' ? 'bg-label-success' : 'bg-label-danger' }}">
+                        {{ $user->is_active == 'Active' ? 'Active' : 'Inactive' }}
+                    </span>
+                </p>
+
+                <!-- Subscription Start Date -->
+                <p class="text-muted small mb-1">
+                    <i class="bx bx-calendar"></i>
+                    {{ $user->subscription_start_date ? $user->subscription_start_date->format('Y-m-d') : 'N/A' }}
+                </p>
+
+                <!-- Subscription Duration -->
+                <p class="text-muted small">
+                    <i class="bx bx-time"></i>
+                    {{ $user->subscription_duration_months }} months
+                </p>
+            </div>
+
+            <!-- Actions -->
+            <div class="card-footer">
+                <a href="{{ route('users.edit', $user->id) }}" class="btn btn-sm btn-primary"
+                    style="margin-right: 8px;">Edit</a>
+                <form action="{{ route('users.destroy', $user->id) }}" method="POST" style="display: inline;">
+                    @csrf
+                    @method('DELETE')
+                    <button class="btn btn-sm btn-danger" type="submit"
+                        onclick="return confirm('Are you sure?')">Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    @endforeach
 </div>
 
 @endsection

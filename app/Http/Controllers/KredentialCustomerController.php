@@ -93,6 +93,7 @@ class KredentialCustomerController extends Controller
     public function destroy(KredentialCustomer $kredentialCustomer)
     {
         $kredentialCustomer->delete();
+        $kredentialCustomer->user()->update(['is_active' => 0]);
 
         notify()->success('Customer credential deleted successfully!');
         return redirect()->route('kredential_customers.index')->with('success', 'Credential deleted successfully.');

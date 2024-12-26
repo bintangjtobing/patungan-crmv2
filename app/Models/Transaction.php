@@ -71,7 +71,7 @@ class Transaction extends BaseModel
     }
     public function supplier()
     {
-        return $this->belongsTo(Supplier::class, 'supplier_uuid', 'uuid');
+        return $this->belongsTo(Supplier::class);
     }
     protected $dates = ['created_at', 'updated_at', 'expiration_date'];
 }
