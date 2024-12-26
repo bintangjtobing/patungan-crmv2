@@ -25,7 +25,7 @@
             <!-- User (only visible for Penjualan) -->
             <div class="mb-3" id="user_section" style="display: none;">
                 <label for="user_id" class="form-label">User</label>
-                <select name="user_id" id="user_id" class="form-select">
+                <select name="user_id" id="user_id" class="form-select select2">
                     <option value="">Select a User</option>
                     @foreach($users as $user)
                     <option value="{{ $user->id }}">{{ $user->name }}</option>

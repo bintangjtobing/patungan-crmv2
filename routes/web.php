@@ -441,7 +441,7 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('suppliers', SupplierController::class);
     Route::get('/finance-report', function () {
         // Data transaksi yang dikelompokkan berdasarkan bulan
-        $transactionsByMonth = \App\Models\Transaction::with('product','supplier')
+        $transactionsByMonth = Transaction::with(['product', 'supplier'])
             ->selectRaw("
                 DATE_FORMAT(created_at, '%M %Y') AS month,
                 jenis_transaksi,
@@ -454,23 +454,22 @@ Route::middleware(['auth'])->group(function () {
             ->orderByRaw("DATE_FORMAT(created_at, '%Y-%m') DESC, created_at DESC")
             ->get();
 
+        // Hitung total penjualan, pembelian, dan keuntungan
+        $report = $transactionsByMonth->groupBy('month')->map(function ($group) {
+            $sales = $group->where('jenis_transaksi', 1)->sum('total');
+            $purchases = $group->where('jenis_transaksi', 0)->sum('total');
+            $profit = $sales - $purchases;
 
-    // Hitung total penjualan, pembelian, dan keuntungan
-    $report = $transactionsByMonth->groupBy('month')->map(function ($group) {
-        $sales = $group->where('jenis_transaksi', 1)->sum('total');
-        $purchases = $group->where('jenis_transaksi', 0)->sum('total');
-        $profit = $sales - $purchases;
-
-        return [
-            'sales' => $sales,
-            'purchases' => $purchases,
-            'profit' => $profit,
-            'transactions' => $group
-        ];
-    });
+            return [
+                'sales' => $sales,
+                'purchases' => $purchases,
+                'profit' => $profit,
+                'transactions' => $group
+            ];
+        });
 
         return view('dashboard.finance-report.index', compact('report'));
-        // return response()->json($report);
+        // return response()->json( $transactionsByMonth);
     })->name('finance-report');
     Route::get('/finance-report/export', [FinanceReportController::class, 'export'])->name('finance-report.export');
     Route::get('/finance-report/export-excel', function () {

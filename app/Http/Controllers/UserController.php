@@ -13,10 +13,35 @@ class UserController extends Controller
      */
     public function index()
     {
-        $users = User::all();
-        notify()->success('User list loaded successfully!', 'Success');
-        return view('dashboard.users.index', compact('users'));
+        $users = User::with(['transactions', 'sessions', 'kredentialCustomers'])
+            ->get()
+            ->map(function ($user) {
+                // Cek apakah user memiliki kredential customer (status active)
+                $user->is_active = $user->kredentialCustomers()->exists() ? 'Active' : 'Inactive';
+    
+                // Hitung durasi langganan berdasarkan transaksi pertama
+                $firstTransaction = $user->transactions()->orderBy('created_at', 'asc')->first();
+                $user->subscription_start_date = $firstTransaction ? $firstTransaction->created_at : null;
+    
+                // Durasi dalam bulan
+                $user->subscription_duration_months = $firstTransaction
+                    ? now()->diffInMonths($firstTransaction->created_at)
+                    : 0;
+    
+                return $user;
+            });
+    
+        // Hitung statistik pengguna
+        $totalUsers = $users->count();
+        $activeUsers = $users->where('is_active', 'Active')->count();
+    
+        // Notifikasi informatif
+        notify()->success("User list loaded successfully! Total users: $totalUsers, Active users: $activeUsers", 'Success');
+    
+        // Kirim data ke view
+        return view('dashboard.users.index', compact('users', 'totalUsers', 'activeUsers'));
     }
+    
 
     /**
      * Show the form for creating a new user.

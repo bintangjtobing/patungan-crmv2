@@ -12,10 +12,12 @@ class FinanceReportController extends Controller
         // Ambil data laporan
         $report = DB::table('transactions')
             ->join('products', 'transactions.product_uuid', '=', 'products.uuid')
+            ->join('suppliers', 'transactions.supplier_id', '=', 'suppliers.id')
             ->join('users', 'transactions.user_id', '=', 'users.id')
             ->select(
                 'transactions.uuid as transaction_id',
                 'products.nama as product_name',
+                'suppliers.nama as supplier_name',
                 'transactions.jenis_transaksi',
                 'transactions.harga as price',
                 'transactions.created_at as date'

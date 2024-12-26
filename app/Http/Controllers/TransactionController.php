@@ -36,7 +36,7 @@ class TransactionController extends Controller
      */
     public function create()
     {
-        $users = User::all();
+        $users = User::orderBy('created_at','DESC')->get();
         $products = Product::all();
         $suppliers = Supplier::all();
         notify()->info('Ready to create a new transaction!', 'Info');
