@@ -13,7 +13,7 @@ class UserController extends Controller
      */
     public function index()
     {
-        $users = User::with(['transactions', 'sessions', 'kredentialCustomers'])
+        $users = User::orderBy('created_at','desc')->with(['transactions', 'sessions', 'kredentialCustomers'])
             ->get()
             ->map(function ($user) {
                 // Cek apakah user memiliki kredential customer (status active)
