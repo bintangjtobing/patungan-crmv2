@@ -23,7 +23,8 @@ return 'Rp ' . number_format($angka, 0, ',', '.');
         <div class="d-flex align-items-end row">
             <div class="col-sm-7">
                 <div class="card-body">
-                    <h5 class="card-title text-primary">Congratulations {{ Auth::user()->name }}! 🎉</h5>
+                    <h3 class="card-title text-primary" style="font-size: 18px; font-weight: bolder;">Congratulations {{
+                        Auth::user()->name }}! 🎉</h3>
                     <p class="mb-4">
                         You have done <span class="fw-bold">{{ $growthPercentage }}%</span> more sales this month.
                         Check your finance report to see details.<br />
@@ -371,39 +372,51 @@ return 'Rp ' . number_format($angka, 0, ',', '.');
             </div>
         </div>
     </div>
-    <div class="col-md-6 col-lg-4 order-3 mb-4">
-        <div class="card h-auto">
-            <div class="card-header d-flex align-items-center justify-content-between pb-0">
-                <div class="card-title mb-0">
-                    <h5 class="m-0 me-2">Order Statistics</h5>
-                    <small class="text-muted">{{ $kredentialCustomerCount->count() }} Total Records</small>
-                </div>
+</div>
+<div class="col-12 mb-4">
+    <div class="card h-auto">
+        <div class="card-header d-flex align-items-center justify-content-between pb-0">
+            <div class="card-title mb-0">
+                <h5 class="m-0 me-2">Order Statistics</h5>
+                <small class="text-muted">{{ $kredentialCustomerCount->count() }} Total Records</small>
             </div>
-            <div class="card-body">
-                <ul class="p-0 m-0">
-                    @foreach($kredentialCustomerCount as $stat)
-                    <li class="d-flex mb-4 pb-1">
-                        <div class="avatar flex-shrink-0 me-3">
-                            <span class="avatar-initial rounded bg-label-primary">
-                                <i class="bx bx-user"></i>
-                            </span>
-                        </div>
-                        <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
-                            <div class="me-2">
-                                <h6 class="mb-0">{{ $stat->email_akses }}</h6>
-                                <small class="text-muted">{{ $stat->product_name ?? 'Unknown Product' }}</small>
-
+        </div>
+        <div class="card-body">
+            <div class="row">
+                @foreach($kredentialCustomerCount->chunk(ceil($kredentialCustomerCount->count() / 3)) as $chunk)
+                <div class="col-md-4">
+                    <ul class="p-0 m-0">
+                        @foreach($chunk as $stat)
+                        <li class="d-flex mb-4 pb-1">
+                            <div class="avatar flex-shrink-0 me-3">
+                                <span class="avatar-initial rounded bg-label-primary">
+                                    <i class="bx bx-user"></i>
+                                </span>
                             </div>
-                            <div class="user-progress">
-                                <small class="fw-semibold">{{ $stat->user_count }} Users</small>
+                            <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
+                                <div class="me-2">
+                                    <h6 class="mb-0">{{ $stat->email_akses }}</h6>
+                                    <small class="text-muted">{{ $stat->product_name ?? 'Unknown Product' }}</small>
+                                </div>
+                                <div class="user-progress">
+                                    <small class="fw-semibold 
+                                        @if($stat->user_count >= 5) bg-danger text-white 
+                                        @elseif($stat->user_count > 2) bg-warning text-dark 
+                                        @else bg-success text-white 
+                                        @endif px-2 py-1 rounded">
+                                        {{ $stat->user_count }} Users
+                                    </small>
+                                </div>
                             </div>
-                        </div>
-                    </li>
-                    @endforeach
-                </ul>
+                        </li>
+                        @endforeach
+                    </ul>
+                </div>
+                @endforeach
             </div>
         </div>
     </div>
 </div>
+
 
 @endsection
