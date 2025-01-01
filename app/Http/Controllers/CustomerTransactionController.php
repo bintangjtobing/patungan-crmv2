@@ -23,9 +23,6 @@ class CustomerTransactionController extends Controller
                 'product_uuid' => 'required|exists:products,uuid',
                 'bukti_transaksi' => 'required|url', // Harus URL valid
             ]);
-            // Generate username
-            $nameParts = explode(' ', $validatedData['name']);
-            $username = strtolower(implode('', $nameParts));
             // Ambil harga produk berdasarkan UUID
             $product = Product::where('uuid', $validatedData['product_uuid'])->first();
             if (!$product) {
@@ -33,15 +30,25 @@ class CustomerTransactionController extends Controller
                     'message' => 'Produk tidak ditemukan.',
                 ], 404);
             }
+            // Cek apakah user sudah ada berdasarkan email atau no_hp
+            $user = User::where('email', $validatedData['email'])
+            ->orWhere('no_hp', $validatedData['no_hp'])
+            ->first();
             // Buat user baru
-            $user = User::create([
-                'username' => $username,
-                'name' => $validatedData['name'],
-                'email' => $validatedData['email'],
-                'no_hp' => $validatedData['no_hp'],
-                'password' => bcrypt('default_password'), // Ganti dengan logika password
-                'type' => 1, // 1 untuk customer
-            ]);
+            if (!$user) {
+                // Jika user belum ada, buat user baru
+                $nameParts = explode(' ', $validatedData['name']);
+                $username = strtolower(implode('', $nameParts));
+    
+                $user = User::create([
+                    'username' => $username,
+                    'name' => $validatedData['name'],
+                    'email' => $validatedData['email'],
+                    'no_hp' => $validatedData['no_hp'],
+                    'password' => bcrypt('default_password'), // Ganti dengan logika password
+                    'type' => 1, // 1 untuk customer
+                ]);
+            }
             $harga = $product->harga_jual;
 
             // Simpan transaksi (sesuaikan dengan model Anda)
