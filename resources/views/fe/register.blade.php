@@ -173,7 +173,7 @@
                     <p class="text-center text-gray-600">Untuk QRIS, kamu bisa memindai QR Code ini ya</p>
                     <div class="flex justify-center my-4">
                         <img src="https://res.cloudinary.com/dflafxsqp/image/upload/v1735840909/QRIS-patunganyukIdn2025_y1gvkd.png"
-                            alt="QR Code" class="w-32 h-32">
+                            alt="QR Code" style="max-width:50%">
                     </div>
                 </div>
 
