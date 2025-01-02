@@ -172,7 +172,7 @@
                 <div id="qrisSection" class="hidden space-y-4">
                     <p class="text-center text-gray-600">Untuk QRIS, kamu bisa memindai QR Code ini ya</p>
                     <div class="flex justify-center my-4">
-                        <img src="https://res.cloudinary.com/dflafxsqp/image/upload/v1732206306/rekening/yta7g9wyl0wbz1kgp9vl.png"
+                        <img src="https://res.cloudinary.com/dflafxsqp/image/upload/v1735840909/QRIS-patunganyukIdn2025_y1gvkd.png"
                             alt="QR Code" class="w-32 h-32">
                     </div>
                 </div>
