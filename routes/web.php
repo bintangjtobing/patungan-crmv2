@@ -420,8 +420,10 @@ Route::middleware(['auth'])->group(function () {
         . "Berakhir: *{$transaction->expiration_date->format('d M Y')}*\n\n"
         . "Segera perpanjang untuk 1 bulan berikutnya (*" . now()->format('F Y') . " - " . now()->addMonth()->format('F Y') . "*) dengan nominal *Rp " . number_format($transaction->harga, 0, ',', '.') . "*.\n\n"
         . "💳 *Transfer ke:*\n"
-        . "- Dana/OVO: 081262845980\n"
-        . "- BCA: 3831246616\n"
+        . "- Dana: 081262845980\n"
+        . "- BCA: 3831 2466 16\n"
+        . "- SUPER BANK: 0000 2191 3645\n"
+        . "- SeaBank: 9014 6720 8839\n"
         . "- QRIS: https://short.patunganyuk.com/qris\n\n"
         . "✨ Konfirmasi / kirim bukti pembayaran agar segera kami proses ya! Terima kasih. 🙏";
 
