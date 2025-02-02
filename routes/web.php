@@ -413,23 +413,40 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/expiry-transactions/send-reminder/{id}', function ($id) {
         $transaction = Transaction::with(['user', 'product'])->findOrFail($id);
         $sendMessage = new SendMessage();
-
+    
+        // Format pesan reminder pembayaran
         $message = "✨ *Reminder Pembayaran* ✨\n\n"
-        . "Halo kak {$transaction->user->name}👋\n"
-        . "Produk: *{$transaction->product->nama}*\n"
-        . "Berakhir: *{$transaction->expiration_date->format('d M Y')}*\n\n"
-        . "Segera perpanjang untuk 1 bulan berikutnya (*" . now()->format('F Y') . " - " . now()->addMonth()->format('F Y') . "*) dengan nominal *Rp " . number_format($transaction->harga, 0, ',', '.') . "*.\n\n"
-        . "💳 *Transfer ke:*\n"
-        . "- Dana: 081262845980\n"
-        . "- BCA: 3831 2466 16\n"
-        . "- SUPER BANK: 0000 2191 3645\n"
-        . "- SeaBank: 9014 6720 8839\n"
-        . "- QRIS: https://short.patunganyuk.com/qris\n\n"
-        . "✨ Konfirmasi / kirim bukti pembayaran agar segera kami proses ya! Terima kasih. 🙏";
-
+            . "Halo kak {$transaction->user->name}👋\n"
+            . "Produk: *{$transaction->product->nama}*\n"
+            . "Berakhir: *{$transaction->expiration_date->format('d M Y')}*\n\n"
+            . "Segera perpanjang untuk 1 bulan berikutnya (*" . now()->format('F Y') . " - " . now()->addMonth()->format('F Y') . "*) dengan nominal *Rp " . number_format($transaction->harga, 0, ',', '.') . "*.\n\n"
+            . "💳 *Transfer ke:*\n"
+            . "- Dana: 081262845980\n"
+            . "- BCA: 3831 2466 16\n"
+            . "- SUPER BANK: 0000 2191 3645\n"
+            . "- SeaBank: 9014 6720 8839\n"
+            . "- QRIS: https://short.patunganyuk.com/qris\n\n"
+            . "✨ Konfirmasi / kirim bukti pembayaran agar segera kami proses ya! Terima kasih. 🙏";
+    
+        // Kirim pesan reminder ke WhatsApp
         $sendMessage->send($transaction->user->no_hp, $message);
-
-        return redirect()->back()->with('success', 'Reminder successfully sent to WhatsApp.');
+    
+        // Buat transaksi baru untuk perpanjangan
+        $newTransaction = Transaction::create([
+            'user_id' => $transaction->user->id,
+            'product_uuid' => $transaction->product->uuid,
+            'jumlah' => 1, // Perpanjangan 1 bulan
+            'harga' => $transaction->harga,
+            'status' => 0, // Status 0 karena masih menunggu pembayaran
+            'jenis_transaksi' => 1, // 1 untuk penjualan
+            'bukti_transaksi' => null, // Bukti transaksi kosong, harus diisi setelah pembayaran
+            'description' => "Perpanjangan member dengan penjualan \"{$transaction->product->nama}\" untuk bulan " . 
+                now()->translatedFormat('F') . 
+                " hingga bulan " . 
+                now()->addMonth()->translatedFormat('F'),
+        ]);
+    
+        return redirect()->back()->with('success', 'Reminder successfully sent and renewal transaction created.');
     })->name('transactions.sendReminder');
     Route::resource('products', ProductController::class);
     Route::resource('kredential_customers', KredentialCustomerController::class);
