@@ -77,6 +77,10 @@ class TransactionController extends Controller
             $data['product_uuid'] = $request->product_uuid;
             $data['jumlah'] = $request->jumlah;
             $data['status'] = $request->hasFile('bukti_transaksi') ? 1 : 0;
+            $data['description'] = "Member baru dengan penjualan \"{$request->product_uuid}\" untuk bulan " . 
+                now()->translatedFormat('F') . 
+                " hingga bulan " . 
+                now()->addMonths($request->jumlah)->translatedFormat('F');
 
             if ($request->hasFile('bukti_transaksi')) {
                 try {

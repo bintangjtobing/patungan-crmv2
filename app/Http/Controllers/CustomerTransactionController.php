@@ -23,6 +23,7 @@ class CustomerTransactionController extends Controller
                 'product_uuid' => 'required|exists:products,uuid',
                 'bukti_transaksi' => 'required|url', // Harus URL valid
             ]);
+
             // Ambil harga produk berdasarkan UUID
             $product = Product::where('uuid', $validatedData['product_uuid'])->first();
             if (!$product) {
@@ -30,16 +31,20 @@ class CustomerTransactionController extends Controller
                     'message' => 'Produk tidak ditemukan.',
                 ], 404);
             }
+
             // Cek apakah user sudah ada berdasarkan email atau no_hp
             $user = User::where('email', $validatedData['email'])
-            ->orWhere('no_hp', $validatedData['no_hp'])
-            ->first();
-            // Buat user baru
+                ->orWhere('no_hp', $validatedData['no_hp'])
+                ->first();
+
+            $isNewUser = false;
+
+            // Buat user baru jika tidak ditemukan
             if (!$user) {
-                // Jika user belum ada, buat user baru
+                $isNewUser = true; // Tandai bahwa ini adalah pelanggan baru
                 $nameParts = explode(' ', $validatedData['name']);
                 $username = strtolower(implode('', $nameParts));
-    
+
                 $user = User::create([
                     'username' => $username,
                     'name' => $validatedData['name'],
@@ -49,17 +54,33 @@ class CustomerTransactionController extends Controller
                     'type' => 1, // 1 untuk customer
                 ]);
             }
-            $harga = $product->harga_jual;
 
-            // Simpan transaksi (sesuaikan dengan model Anda)
+            $harga = $product->harga_jual;
+            $jumlah = 1; // Default jumlah transaksi = 1
+
+            // Menentukan deskripsi berdasarkan apakah pelanggan baru atau pelanggan lama
+            if ($isNewUser) {
+                $description = "Member baru dengan penjualan \"{$product->nama}\" untuk bulan " . 
+                    now()->translatedFormat('F') . 
+                    " hingga bulan " . 
+                    now()->addMonths($jumlah)->translatedFormat('F');
+            } else {
+                $description = "Perpanjangan member dengan penjualan \"{$product->nama}\" untuk bulan " . 
+                    now()->translatedFormat('F') . 
+                    " hingga bulan " . 
+                    now()->addMonths($jumlah)->translatedFormat('F');
+            }
+
+            // Simpan transaksi
             $transaction = Transaction::create([
                 'user_id' => $user->id,
                 'product_uuid' => $product->uuid,
-                'jumlah' => 1,
+                'jumlah' => $jumlah,
                 'harga' => $harga, // Ambil harga dari produk
                 'bukti_transaksi' => $validatedData['bukti_transaksi'],
                 'status' => 0,
                 'jenis_transaksi' => 1, // 1 untuk penjualan
+                'description' => $description,
             ]);
 
             return response()->json([
