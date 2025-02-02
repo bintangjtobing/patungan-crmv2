@@ -26,8 +26,6 @@ class TransactionObserver
             "✨ *Detail Transaksi:* \n" .
             "🗓️ Jumlah: *" . $transaction->jumlah . " Bulan*\n" .
             "💰 Total Harga: *Rp " . number_format($transaction->harga, 0, ',', '.') . "*\n\n" .
-            "🎗️ *Langkah selanjutnya:*\n" .
-            "Makasih udah bertransaksi ya! Sekarang kamu tinggal menunggu untuk *verifikasi pembayaran* dari kami. ⏳\n\n" .
             "Kalau ada kendala, langsung aja hubungi tim support kami. 😊\n\n" .
             "Terima kasih sudah mempercayai layanan kami! 💙" :
 
