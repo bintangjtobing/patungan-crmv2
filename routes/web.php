@@ -429,8 +429,7 @@ Route::middleware(['auth'])->group(function () {
             . "✨ Konfirmasi / kirim bukti pembayaran agar segera kami proses ya! Terima kasih. 🙏";
     
         // Kirim pesan reminder ke WhatsApp
-        $sendMessage->send($transaction->user->no_hp, $message);
-    
+        
         // Buat transaksi baru untuk perpanjangan
         $newTransaction = Transaction::create([
             'user_id' => $transaction->user->id,
@@ -441,11 +440,12 @@ Route::middleware(['auth'])->group(function () {
             'jenis_transaksi' => 1, // 1 untuk penjualan
             'bukti_transaksi' => null, // Bukti transaksi kosong, harus diisi setelah pembayaran
             'description' => "Perpanjangan member dengan penjualan \"{$transaction->product->nama}\" untuk bulan " . 
-                now()->translatedFormat('F') . 
-                " hingga bulan " . 
-                now()->addMonth()->translatedFormat('F'),
+            now()->translatedFormat('F') . 
+            " hingga bulan " . 
+            now()->addMonth()->translatedFormat('F'),
         ]);
-    
+        
+        $sendMessage->send($transaction->user->no_hp, $message);
         return redirect()->back()->with('success', 'Reminder successfully sent and renewal transaction created.');
     })->name('transactions.sendReminder');
     Route::resource('products', ProductController::class);
